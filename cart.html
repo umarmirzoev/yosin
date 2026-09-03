@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Корзина — Yosin Store</title>
+<link rel="icon" href="assets/logo.jpg">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="cart">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="brand">
+      <img src="assets/logo.jpg" alt="Yosin Store">
+      <span class="wordmark">YOSIN<em>.store</em></span>
+    </a>
+    <nav class="main-nav">
+      <a href="index.html" data-nav="index.html">Главная</a>
+      <a href="catalog.html" data-nav="catalog.html">Каталог</a>
+      <a href="catalog.html?category=phones">Смартфоны</a>
+      <a href="catalog.html?category=watches">Смарт-часы</a>
+      <a href="favorites.html" data-nav="favorites.html">Избранное</a>
+    </nav>
+    <form class="header-search" data-search-form>
+      <span data-icon="search" data-size="17"></span>
+      <input type="search" name="q" placeholder="Найти iPhone, Galaxy Watch…">
+    </form>
+    <div class="header-actions">
+      <button class="nav-toggle" data-nav-toggle aria-label="Меню"></button>
+      <a class="icon-btn" href="favorites.html" aria-label="Избранное">
+        <span data-icon="heart" data-size="18"></span>
+        <span class="count" data-fav-count style="display:none;">0</span>
+      </a>
+      <a class="icon-btn" href="cart.html" aria-label="Корзина">
+        <span data-icon="cart" data-size="18"></span>
+        <span class="count" data-cart-count style="display:none;">0</span>
+      </a>
+    </div>
+  </div>
+  <div class="container mobile-search">
+    <form class="header-search" data-search-form>
+      <span data-icon="search" data-size="17"></span>
+      <input type="search" name="q" placeholder="Найти товар…">
+    </form>
+  </div>
+</header>
+
+<main class="container">
+  <div class="breadcrumb"><a href="index.html">Главная</a><span class="sep">/</span><span>Корзина</span></div>
+  <h1 style="font-size:26px;margin:18px 0 0;">Корзина</h1>
+
+  <div class="cart-layout" id="cartRoot"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <img src="assets/logo.jpg" alt="Yosin Store">
+          <span class="wordmark">YOSIN<em>.store</em></span>
+        </div>
+        <p>Оригинальная техника с официальной гарантией: смартфоны, смарт-часы, наушники и зарядные устройства. Шоурум в Душанбе и доставка по городу.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Каталог</h5>
+        <a href="catalog.html?category=phones">Смартфоны</a>
+        <a href="catalog.html?category=watches">Смарт-часы</a>
+        <a href="catalog.html?category=headphones">Наушники</a>
+        <a href="catalog.html?category=chargers">Зарядные устройства</a>
+        <a href="catalog.html?category=powerbanks">Powerbank</a>
+        <a href="catalog.html?category=accessories">Аксессуары</a>
+      </div>
+      <div class="footer-col">
+        <h5>Покупателям</h5>
+        <a href="cart.html">Корзина</a>
+        <a href="favorites.html">Избранное</a>
+        <a href="checkout.html">Оформление заказа</a>
+        <a href="#">Доставка и оплата</a>
+        <a href="#">Гарантия и возврат</a>
+      </div>
+      <div class="footer-col">
+        <h5>Контакты</h5>
+        <a href="tel:+992900000000">+992 90 000-00-00</a>
+        <a href="#">Душанбе, Рудаки 45</a>
+        <a href="#">Telegram: @yosin_store</a>
+        <a href="#">Пн–Вс, 9:00–20:00</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Yosin Store. Все права защищены.</span>
+      <span class="mono">Душанбе · Таджикистан</span>
+    </div>
+  </div>
+</footer>
+
+<script src="data/products.js"></script>
+<script src="assets/script.js"></script>
+<script>
+(function () {
+  var promoInputVal = "";
+
+  function render() {
+    var root = document.getElementById("cartRoot");
+    var lines = Yosin.cartLines();
+
+    if (!lines.length) {
+      root.innerHTML = '<div class="empty-state" style="grid-column:1/-1;padding:80px 20px;">' +
+        Yosin.icon("cart", 56) + '<h3>В корзине пока пусто</h3>' +
+        '<p>Загляните в каталог — там 19 товаров с гарантией и доставкой по Душанбе.</p>' +
+        '<a href="catalog.html" class="btn btn-gold" style="margin-top:6px;">Перейти в каталог</a></div>';
+      return;
+    }
+
+    var totals = Yosin.calcTotals(lines);
+
+    var itemsHTML = lines.map(function (line) {
+      var p = line.product;
+      return '<div class="cart-item" data-line-id="' + p.id + '">' +
+        '<a href="product.html?id=' + p.id + '" class="thumb">' + Yosin.icon(Yosin.CATEGORY_ICON[p.category], 32) + '</a>' +
+        '<div class="meta"><a href="product.html?id=' + p.id + '"><span class="name">' + p.name + '</span></a>' +
+        '<div class="spec">' + p.brand + ' · ' + Yosin.formatPrice(p.price) + ' / шт</div>' +
+        '<span class="remove" data-remove="' + p.id + '">Удалить</span></div>' +
+        '<div class="stepper">' +
+        '<button data-qty-minus="' + p.id + '">−</button><span class="qty">' + line.qty + '</span><button data-qty-plus="' + p.id + '">+</button>' +
+        '</div>' +
+        '<span class="cart-price">' + Yosin.formatPrice(p.price * line.qty) + '</span>' +
+        '</div>';
+    }).join("");
+
+    var promo = totals.promo;
+    var promoNoteHTML = promo
+      ? '<div class="promo-note ok">' + Yosin.icon("check", 12) + ' Промокод ' + promo.code + ' применён (−' + Math.round(promo.rate * 100) + '%)</div>'
+      : "";
+
+    root.innerHTML =
+      '<div>' + itemsHTML + '<div style="padding-top:18px;"><a href="catalog.html" class="section-link">' + Yosin.icon("chevronLeft", 15) + ' Продолжить покупки</a></div></div>' +
+      '<div class="summary-card">' +
+      '<h3>Итого</h3>' +
+      '<div class="promo-row"><input type="text" id="promoInput" placeholder="Промокод (YOSIN10)" value="' + promoInputVal + '"><button class="btn btn-ghost btn-sm" id="promoBtn">ОК</button></div>' +
+      promoNoteHTML +
+      '<div class="kv-row"><span>Товары (' + lines.reduce(function(s,l){return s+l.qty;},0) + ')</span><span class="val">' + Yosin.formatPrice(totals.subtotal) + '</span></div>' +
+      (totals.discount ? '<div class="kv-row discount"><span>Скидка по промокоду</span><span class="val">−' + Yosin.formatPrice(totals.discount) + '</span></div>' : '') +
+      '<div class="kv-row"><span>Доставка</span><span class="val">' + (totals.shipping === 0 ? 'Бесплатно' : Yosin.formatPrice(totals.shipping)) + '</span></div>' +
+      (totals.shipping > 0 ? '<div class="promo-note">Бесплатная доставка от ' + Yosin.formatPrice(Yosin.FREE_SHIPPING_THRESHOLD) + '</div>' : '') +
+      '<div class="kv-row total"><span>К оплате</span><span class="val">' + Yosin.formatPrice(totals.total) + '</span></div>' +
+      '<a href="checkout.html" class="btn btn-primary btn-block" style="margin-top:16px;">Оформить заказ</a>' +
+      '</div>';
+
+    root.querySelectorAll("[data-qty-plus]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-qty-plus");
+        var line = lines.filter(function (l) { return l.id === id; })[0];
+        Yosin.setQtyInCart(id, line.qty + 1);
+        render();
+      });
+    });
+    root.querySelectorAll("[data-qty-minus]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-qty-minus");
+        var line = lines.filter(function (l) { return l.id === id; })[0];
+        Yosin.setQtyInCart(id, line.qty - 1);
+        render();
+      });
+    });
+    root.querySelectorAll("[data-remove]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        Yosin.removeFromCart(b.getAttribute("data-remove"));
+        Yosin.showToast("Товар удалён из корзины");
+        render();
+      });
+    });
+    var promoBtn = document.getElementById("promoBtn");
+    if (promoBtn) {
+      promoBtn.addEventListener("click", function () {
+        var input = document.getElementById("promoInput");
+        promoInputVal = input.value;
+        var rate = Yosin.applyPromo(input.value);
+        if (rate) Yosin.showToast("Промокод применён: −" + Math.round(rate * 100) + "%", "tag");
+        else if (input.value.trim()) Yosin.showToast("Такого промокода нет");
+        render();
+      });
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", render);
+})();
+</script>
+</body>
+</html>
