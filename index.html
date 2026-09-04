@@ -17,15 +17,15 @@
       <span class="wordmark">YOSIN<em>.store</em></span>
     </a>
     <nav class="main-nav">
-      <a href="index.html" data-nav="index.html">Главная</a>
-      <a href="catalog.html" data-nav="catalog.html">Каталог</a>
-      <a href="catalog.html?category=phones">Смартфоны</a>
-      <a href="catalog.html?category=watches">Смарт-часы</a>
-      <a href="favorites.html" data-nav="favorites.html">Избранное</a>
+      <a href="index.html" data-nav="index.html" data-i18n="nav.home">Главная</a>
+      <a href="catalog.html" data-nav="catalog.html" data-i18n="nav.catalog">Каталог</a>
+      <a href="catalog.html?category=phones" data-i18n="nav.phones">Смартфоны</a>
+      <a href="catalog.html?category=watches" data-i18n="nav.watches">Смарт-часы</a>
+      <a href="favorites.html" data-nav="favorites.html" data-i18n="nav.favorites">Избранное</a>
     </nav>
     <form class="header-search" data-search-form>
       <span data-icon="search" data-size="17"></span>
-      <input type="search" name="q" placeholder="Найти iPhone, Galaxy Watch…">
+      <input type="search" name="q" placeholder="Найти iPhone, Galaxy Watch…" data-i18n-placeholder="header.searchDesktop">
     </form>
     <div class="header-actions">
       <button class="nav-toggle" data-nav-toggle aria-label="Меню"></button>
@@ -42,7 +42,7 @@
   <div class="container mobile-search">
     <form class="header-search" data-search-form>
       <span data-icon="search" data-size="17"></span>
-      <input type="search" name="q" placeholder="Найти товар…">
+      <input type="search" name="q" placeholder="Найти товар…" data-i18n-placeholder="header.searchMobile">
     </form>
   </div>
 </header>
@@ -51,12 +51,12 @@
   <div class="container">
     <section class="hero">
       <div class="hero-copy">
-        <span class="eyebrow">Оригинал · Гарантия 12 месяцев</span>
-        <h1>Техника, которую <em class="accent">приятно</em> дарить и носить.</h1>
-        <p>Смартфоны, смарт-часы, наушники и зарядные устройства проверенных брендов — с честной гарантией и доставкой по Душанбе в день заказа.</p>
+        <span class="eyebrow" data-i18n="hero.eyebrow">Оригинал · Гарантия 12 месяцев</span>
+        <h1 data-i18n-html="hero.title">Техника, которую <em class="accent">приятно</em> дарить и носить.</h1>
+        <p data-i18n="hero.subtitle">Смартфоны, смарт-часы, наушники и зарядные устройства проверенных брендов — с честной гарантией и доставкой по Душанбе в день заказа.</p>
         <div class="hero-actions">
-          <a href="catalog.html" class="btn btn-gold">Смотреть каталог</a>
-          <a href="catalog.html?category=phones" class="btn btn-ghost">Смартфоны →</a>
+          <a href="catalog.html" class="btn btn-gold" data-i18n="hero.ctaCatalog">Смотреть каталог</a>
+          <a href="catalog.html?category=phones" class="btn btn-ghost" data-i18n="hero.ctaPhones">Смартфоны →</a>
         </div>
         <div class="hero-trust">
           <span class="item"><span data-icon="shield" data-size="16"></span> Гарантия 12 мес</span>
@@ -143,36 +143,37 @@
           <img src="assets/logo.jpg" alt="Yosin Store">
           <span class="wordmark">YOSIN<em>.store</em></span>
         </div>
-        <p>Оригинальная техника с официальной гарантией: смартфоны, смарт-часы, наушники и зарядные устройства. Шоурум в Душанбе и доставка по городу.</p>
+        <p data-i18n="footer.description">Оригинальная техника с официальной гарантией: смартфоны, смарт-часы, наушники и зарядные устройства. Шоурум в Душанбе и доставка по городу.</p>
       </div>
       <div class="footer-col">
-        <h5>Каталог</h5>
-        <a href="catalog.html?category=phones">Смартфоны</a>
-        <a href="catalog.html?category=watches">Смарт-часы</a>
-        <a href="catalog.html?category=headphones">Наушники</a>
-        <a href="catalog.html?category=chargers">Зарядные устройства</a>
-        <a href="catalog.html?category=powerbanks">Powerbank</a>
-        <a href="catalog.html?category=accessories">Аксессуары</a>
+        <h5 data-i18n="footer.catalogTitle">Каталог</h5>
+        <a href="catalog.html?category=phones" data-i18n="nav.phones">Смартфоны</a>
+        <a href="catalog.html?category=watches" data-i18n="nav.watches">Смарт-часы</a>
+        <a href="catalog.html?category=headphones" data-i18n="footer.headphones">Наушники</a>
+        <a href="catalog.html?category=chargers" data-i18n="footer.chargers">Зарядные устройства</a>
+        <a href="catalog.html?category=powerbanks" data-i18n="footer.powerbanks">Powerbank</a>
+        <a href="catalog.html?category=accessories" data-i18n="footer.accessories">Аксессуары</a>
       </div>
       <div class="footer-col">
-        <h5>Покупателям</h5>
-        <a href="cart.html">Корзина</a>
-        <a href="favorites.html">Избранное</a>
-        <a href="checkout.html">Оформление заказа</a>
-        <a href="#">Доставка и оплата</a>
-        <a href="#">Гарантия и возврат</a>
+        <h5 data-i18n="footer.customersTitle">Покупателям</h5>
+        <a href="cart.html" data-i18n="footer.cart">Корзина</a>
+        <a href="favorites.html" data-i18n="nav.favorites">Избранное</a>
+        <a href="checkout.html" data-i18n="footer.checkout">Оформление заказа</a>
+        <a href="#" data-i18n="footer.delivery">Доставка и оплата</a>
+        <a href="#" data-i18n="footer.warranty">Гарантия и возврат</a>
       </div>
       <div class="footer-col">
-        <h5>Контакты</h5>
+        <h5 data-i18n="footer.contactsTitle">Контакты</h5>
         <a href="tel:+992900000000">+992 90 000-00-00</a>
         <a href="#">Душанбе, Рудаки 45</a>
         <a href="#">Telegram: @yosin_store</a>
-        <a href="#">Пн–Вс, 9:00–20:00</a>
+        <a href="#" data-i18n="footer.hours">Пн–Вс, 9:00–20:00</a>
+        <a href="admin.html" style="opacity:.55;font-size:11.5px;" data-i18n="footer.sellerCabinet">Кабинет продавца</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 Yosin Store. Все права защищены.</span>
-      <span class="mono">Душанбе · Таджикистан</span>
+      <span data-i18n="footer.copyright">© 2026 Yosin Store. Все права защищены.</span>
+      <span class="mono" data-i18n="footer.tagline">Душанбе · Таджикистан</span>
     </div>
   </div>
 </footer>

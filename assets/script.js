@@ -56,7 +56,10 @@
     checkCircle: '<circle cx="12" cy="12" r="9.5"></circle><polyline points="8 12.5 11 15.5 16 9"></polyline>',
     trash: '<polyline points="4 6.5 6 6.5 20 6.5"></polyline><path d="M8.5 6.5V4.8a1.6 1.6 0 0 1 1.6-1.6h3.8a1.6 1.6 0 0 1 1.6 1.6V6.5"></path><path d="M6.5 6.5 7.3 20a1.6 1.6 0 0 0 1.6 1.5h6.2a1.6 1.6 0 0 0 1.6-1.5l0.8-13.5"></path>',
     mapPin: '<path d="M12 21.5s-7-6.2-7-11.8a7 7 0 0 1 14 0c0 5.6-7 11.8-7 11.8z"></path><circle cx="12" cy="9.6" r="2.3"></circle>',
-    tag: '<path d="M20 12.4 12.6 20a1.7 1.7 0 0 1-2.4 0l-6.2-6.2a1.7 1.7 0 0 1 0-2.4L11.4 4h6.2a2.4 2.4 0 0 1 2.4 2.4v6z"></path><circle cx="15.6" cy="8.4" r="1.3"></circle>'
+    tag: '<path d="M20 12.4 12.6 20a1.7 1.7 0 0 1-2.4 0l-6.2-6.2a1.7 1.7 0 0 1 0-2.4L11.4 4h6.2a2.4 2.4 0 0 1 2.4 2.4v6z"></path><circle cx="15.6" cy="8.4" r="1.3"></circle>',
+    home: '<path d="M4 11.5 12 4l8 7.5"></path><path d="M6 10v9.5a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V10"></path><path d="M9.5 20.3v-5.8h5v5.8"></path>',
+    grid: '<rect x="3.4" y="3.4" width="7.6" height="7.6" rx="1.8"></rect><rect x="13" y="3.4" width="7.6" height="7.6" rx="1.8"></rect><rect x="3.4" y="13" width="7.6" height="7.6" rx="1.8"></rect><rect x="13" y="13" width="7.6" height="7.6" rx="1.8"></rect>',
+    user: '<circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 20.2c1-3.6 4.2-5.6 7.5-5.6s6.5 2 7.5 5.6"></path>'
   };
 
   function icon(name, size, extraClass) {
@@ -315,9 +318,259 @@
     });
   }
 
+  /* ==========================================================================
+     I18N — lightweight translation layer for shared site chrome (header, nav,
+     footer, hero, bottom nav). Elements opt in via data-i18n (textContent),
+     data-i18n-html (innerHTML, for markup like <em>) or data-i18n-placeholder.
+     Product/catalog content stays Russian for now.
+     ========================================================================== */
+  var LANG_KEY = "yosin_lang";
+  var LANG_LABELS = { ru: "RU", tj: "TJ", en: "EN" };
+
+  var I18N = {
+    ru: {
+      "nav.home": "Главная",
+      "nav.catalog": "Каталог",
+      "nav.phones": "Смартфоны",
+      "nav.watches": "Смарт-часы",
+      "nav.favorites": "Избранное",
+      "header.searchDesktop": "Найти iPhone, Galaxy Watch…",
+      "header.searchMobile": "Найти товар…",
+      "hero.eyebrow": "Оригинал · Гарантия 12 месяцев",
+      "hero.title": "Техника, которую <em class=\"accent\">приятно</em> дарить и носить.",
+      "hero.subtitle": "Смартфоны, смарт-часы, наушники и зарядные устройства проверенных брендов — с честной гарантией и доставкой по Душанбе в день заказа.",
+      "hero.ctaCatalog": "Смотреть каталог",
+      "hero.ctaPhones": "Смартфоны →",
+      "footer.description": "Оригинальная техника с официальной гарантией: смартфоны, смарт-часы, наушники и зарядные устройства. Шоурум в Душанбе и доставка по городу.",
+      "footer.catalogTitle": "Каталог",
+      "footer.customersTitle": "Покупателям",
+      "footer.contactsTitle": "Контакты",
+      "footer.headphones": "Наушники",
+      "footer.chargers": "Зарядные устройства",
+      "footer.powerbanks": "Powerbank",
+      "footer.accessories": "Аксессуары",
+      "footer.cart": "Корзина",
+      "footer.checkout": "Оформление заказа",
+      "footer.delivery": "Доставка и оплата",
+      "footer.warranty": "Гарантия и возврат",
+      "footer.hours": "Пн–Вс, 9:00–20:00",
+      "footer.sellerCabinet": "Кабинет продавца",
+      "footer.copyright": "© 2026 Yosin Store. Все права защищены.",
+      "footer.tagline": "Душанбе · Таджикистан",
+      "bn.search": "Поиск",
+      "bn.profile": "Профиль"
+    },
+    tj: {
+      "nav.home": "Асосӣ",
+      "nav.catalog": "Каталог",
+      "nav.phones": "Телефонҳои ҳушманд",
+      "nav.watches": "Соатҳои ҳушманд",
+      "nav.favorites": "Интихобшуда",
+      "header.searchDesktop": "iPhone, Galaxy Watch-ро ҷустуҷӯ кунед…",
+      "header.searchMobile": "Молро ҷустуҷӯ кунед…",
+      "hero.eyebrow": "Аслӣ · Кафолати 12 моҳ",
+      "hero.title": "Техникае, ки тӯҳфа додан ва истифода бурданаш <em class=\"accent\">хушнуд</em> аст.",
+      "hero.subtitle": "Телефонҳои ҳушманд, соатҳои ҳушманд, гӯшмонакҳо ва зарядкунакҳои брендҳои боэътимод — бо кафолати ҳалол ва расонидан дар Душанбе дар ҳамон рӯз.",
+      "hero.ctaCatalog": "Каталогро дидан",
+      "hero.ctaPhones": "Телефонҳо →",
+      "footer.description": "Техникаи аслӣ бо кафолати расмӣ: телефонҳои ҳушманд, соатҳои ҳушманд, гӯшмонакҳо ва зарядкунакҳо. Шоуруми мо дар Душанбе ва расонидан дар шаҳр.",
+      "footer.catalogTitle": "Каталог",
+      "footer.customersTitle": "Барои мизоҷон",
+      "footer.contactsTitle": "Тамос",
+      "footer.headphones": "Гӯшмонакҳо",
+      "footer.chargers": "Зарядкунакҳо",
+      "footer.powerbanks": "Повербанк",
+      "footer.accessories": "Аксессуарҳо",
+      "footer.cart": "Сабад",
+      "footer.checkout": "Расмикунонии фармоиш",
+      "footer.delivery": "Расонидан ва пардохт",
+      "footer.warranty": "Кафолат ва баргардонидан",
+      "footer.hours": "Дш–Як, 9:00–20:00",
+      "footer.sellerCabinet": "Кабинети фурӯшанда",
+      "footer.copyright": "© 2026 Yosin Store. Ҳама ҳуқуқҳо ҳифз шудаанд.",
+      "footer.tagline": "Душанбе · Тоҷикистон",
+      "bn.search": "Ҷустуҷӯ",
+      "bn.profile": "Профил"
+    },
+    en: {
+      "nav.home": "Home",
+      "nav.catalog": "Catalog",
+      "nav.phones": "Smartphones",
+      "nav.watches": "Smart watches",
+      "nav.favorites": "Favorites",
+      "header.searchDesktop": "Search iPhone, Galaxy Watch…",
+      "header.searchMobile": "Search products…",
+      "hero.eyebrow": "Original · 12-month warranty",
+      "hero.title": "Tech that\u2019s a <em class=\"accent\">pleasure</em> to gift and wear.",
+      "hero.subtitle": "Smartphones, smart watches, headphones, and chargers from trusted brands — with an honest warranty and same-day delivery across Dushanbe.",
+      "hero.ctaCatalog": "Browse catalog",
+      "hero.ctaPhones": "Smartphones →",
+      "footer.description": "Original tech with an official warranty: smartphones, smart watches, headphones, and chargers. Showroom in Dushanbe with citywide delivery.",
+      "footer.catalogTitle": "Catalog",
+      "footer.customersTitle": "For customers",
+      "footer.contactsTitle": "Contacts",
+      "footer.headphones": "Headphones",
+      "footer.chargers": "Chargers",
+      "footer.powerbanks": "Powerbank",
+      "footer.accessories": "Accessories",
+      "footer.cart": "Cart",
+      "footer.checkout": "Checkout",
+      "footer.delivery": "Delivery & payment",
+      "footer.warranty": "Warranty & returns",
+      "footer.hours": "Mon–Sun, 9am–8pm",
+      "footer.sellerCabinet": "Seller panel",
+      "footer.copyright": "© 2026 Yosin Store. All rights reserved.",
+      "footer.tagline": "Dushanbe · Tajikistan",
+      "bn.search": "Search",
+      "bn.profile": "Profile"
+    }
+  };
+
+  function getLang() {
+    try {
+      var saved = localStorage.getItem(LANG_KEY);
+      if (saved && I18N[saved]) return saved;
+    } catch (e) {}
+    return "ru";
+  }
+
+  function t(key, lang) {
+    lang = lang || getLang();
+    var dict = I18N[lang] || I18N.ru;
+    if (dict[key] != null) return dict[key];
+    return I18N.ru[key] != null ? I18N.ru[key] : key;
+  }
+
+  function applyLanguage(lang) {
+    if (!I18N[lang]) lang = "ru";
+    try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+    document.documentElement.setAttribute("lang", lang === "tj" ? "tg" : lang);
+
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      el.textContent = t(el.getAttribute("data-i18n"), lang);
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach(function (el) {
+      el.innerHTML = t(el.getAttribute("data-i18n-html"), lang);
+    });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+      el.setAttribute("placeholder", t(el.getAttribute("data-i18n-placeholder"), lang));
+    });
+    document.querySelectorAll("[data-lang-current]").forEach(function (el) {
+      el.textContent = LANG_LABELS[lang] || "RU";
+    });
+    document.querySelectorAll("[data-lang-menu] [data-lang]").forEach(function (btn) {
+      btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
+    });
+  }
+
+  function initI18n() {
+    applyLanguage(getLang());
+  }
+
+
+  /* Mobile bottom tab bar - Home / Favorites / Search / Catalog / Profile
+     (cart stays reachable via the header + top-bar icon, which is never
+     hidden on mobile) */
+  function renderBottomNav() {
+    if (document.querySelector(".bottom-nav")) return;
+    var page = document.body.dataset.page || "";
+    function cls(name) { return "bn-item" + (page === name ? " active" : ""); }
+
+    var nav = document.createElement("nav");
+    nav.className = "bottom-nav";
+    nav.setAttribute("aria-label", "Основная навигация");
+    nav.innerHTML =
+      '<a href="index.html" class="' + cls("home") + '">' +
+        '<span class="bn-icon-wrap">' + icon("home", 21) + '</span><span class="bn-label" data-i18n="nav.home">Главная</span>' +
+      '</a>' +
+      '<a href="favorites.html" class="' + cls("favorites") + '">' +
+        '<span class="bn-icon-wrap">' + icon("heart", 21) + '<span class="count" data-fav-count style="display:none;">0</span></span><span class="bn-label" data-i18n="nav.favorites">Избранное</span>' +
+      '</a>' +
+      '<button type="button" class="bn-item bn-search" data-bn-search>' +
+        '<span class="bn-icon-wrap">' + icon("search", 21) + '</span><span class="bn-label" data-i18n="bn.search">Поиск</span>' +
+      '</button>' +
+      '<a href="catalog.html" class="' + cls("catalog") + '">' +
+        '<span class="bn-icon-wrap">' + icon("grid", 21) + '</span><span class="bn-label" data-i18n="nav.catalog">Каталог</span>' +
+      '</a>' +
+      '<a href="admin.html" class="' + cls("admin") + '">' +
+        '<span class="bn-icon-wrap">' + icon("user", 21) + '</span><span class="bn-label" data-i18n="bn.profile">Профиль</span>' +
+      '</a>';
+
+    document.body.appendChild(nav);
+    document.body.classList.add("has-bottom-nav");
+
+    nav.querySelector("[data-bn-search]").addEventListener("click", function () {
+      var input = document.querySelector(".mobile-search input");
+      if (input) {
+        input.scrollIntoView({ behavior: "smooth", block: "center" });
+        input.focus({ preventScroll: true });
+      } else {
+        window.location.href = "catalog.html";
+      }
+    });
+  }
+
+  /* Slim top status bar - logo, language switch, favorites/cart shortcuts.
+     Site-wide, injected before everything else in <body>. Not sticky, so it
+     never conflicts with the sticky .site-header or any --header-h maths. */
+  function renderTopBar() {
+    if (document.querySelector(".top-bar")) return;
+    var lang = getLang();
+
+    var bar = document.createElement("div");
+    bar.className = "top-bar";
+    bar.innerHTML =
+      '<div class="container top-bar-inner">' +
+        '<a href="index.html" class="top-bar-logo">' +
+          '<img src="assets/logo.jpg" alt="Yosin Store">' +
+          '<span class="wordmark">YOSIN<em>.store</em></span>' +
+        '</a>' +
+        '<div class="top-bar-actions">' +
+          '<div class="lang-switch" data-lang-switch>' +
+            '<button type="button" class="lang-current" data-lang-toggle data-lang-current>' + (LANG_LABELS[lang] || "RU") + '</button>' +
+            '<div class="lang-menu" data-lang-menu hidden>' +
+              '<button type="button" data-lang="ru">Русский</button>' +
+              '<button type="button" data-lang="tj">Тоҷикӣ</button>' +
+              '<button type="button" data-lang="en">English</button>' +
+            '</div>' +
+          '</div>' +
+          '<a class="icon-btn" href="favorites.html" aria-label="Избранное">' +
+            icon("heart", 18) +
+            '<span class="count" data-fav-count style="display:none;">0</span>' +
+          '</a>' +
+          '<a class="icon-btn" href="cart.html" aria-label="Корзина">' +
+            icon("cart", 18) +
+            '<span class="count" data-cart-count style="display:none;">0</span>' +
+          '</a>' +
+        '</div>' +
+      '</div>';
+
+    document.body.insertBefore(bar, document.body.firstChild);
+
+    var toggleBtn = bar.querySelector("[data-lang-toggle]");
+    var menu = bar.querySelector("[data-lang-menu]");
+    toggleBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      menu.hidden = !menu.hidden;
+    });
+    menu.querySelectorAll("[data-lang]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        applyLanguage(btn.getAttribute("data-lang"));
+        menu.hidden = true;
+      });
+    });
+    document.addEventListener("click", function (e) {
+      if (!menu.hidden && !bar.contains(e.target)) menu.hidden = true;
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
+    renderTopBar();
+    renderBottomNav();
     wireHeader();
     hydrateIcons(document);
+    initI18n();
+    updateHeaderBadges();
   });
 
   window.Yosin = {
@@ -354,6 +607,10 @@
     handleFavClick: handleFavClick,
     getParam: getParam,
     hydrateIcons: hydrateIcons,
+    renderBottomNav: renderBottomNav,
+    renderTopBar: renderTopBar,
+    applyLanguage: applyLanguage,
+    getLang: getLang,
     FREE_SHIPPING_THRESHOLD: FREE_SHIPPING_THRESHOLD,
     SHIPPING_FLAT: SHIPPING_FLAT
   };
