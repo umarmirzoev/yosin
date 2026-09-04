@@ -614,6 +614,19 @@
   function initSplash() {
     var splash = document.getElementById("splashScreen");
     if (!splash) return;
+
+    var SPLASH_FLAG = "yosin_splash_shown";
+    var alreadyShown = false;
+    try { alreadyShown = sessionStorage.getItem(SPLASH_FLAG) === "1"; } catch (e) {}
+
+    if (alreadyShown) {
+      // Already saw it once this browsing session (this tab) - don't show it
+      // again on every page navigation, only remove it instantly.
+      if (splash.parentNode) splash.parentNode.removeChild(splash);
+      return;
+    }
+    try { sessionStorage.setItem(SPLASH_FLAG, "1"); } catch (e) {}
+
     function hide() {
       splash.classList.add("splash-hide");
       setTimeout(function () {
@@ -736,7 +749,7 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     initSplash();
-    renderAuthGate();
+    // renderAuthGate(); // TEMPORARILY DISABLED — site is open without login for now.
     renderSideDrawer();
     renderBottomNav();
     wireHeader();
