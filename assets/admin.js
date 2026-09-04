@@ -2,8 +2,8 @@
   "use strict";
 
   var API_BASE = "http://localhost:5080/api";
-  var TOKEN_KEY = "yosin_admin_token";
-  var USER_KEY = "yosin_admin_user";
+  var TOKEN_KEY = "yosin_token";
+  var USER_KEY = "yosin_user";
 
   var els = {};
   var state = {
@@ -77,10 +77,17 @@
   }
 
   function showDashboardView() {
+    var user = getUser();
+    if (!user || user.role !== "Admin") {
+      // Logged in as an ordinary customer (shared session with the profile
+      // page) - don't clear their session, just explain this area is
+      // admin-only and keep them on the login screen.
+      showLoginView("У этого аккаунта нет прав администратора.");
+      return;
+    }
     if (els.loginView) els.loginView.hidden = true;
     if (els.dashboardView) els.dashboardView.hidden = false;
-    var user = getUser();
-    if (els.adminGreeting && user) {
+    if (els.adminGreeting) {
       els.adminGreeting.textContent = "Здравствуйте, " + (user.fullName || "Админ");
     }
     loadAll();

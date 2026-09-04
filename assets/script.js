@@ -285,16 +285,6 @@
 
   function wireHeader() {
     updateHeaderBadges();
-    var toggle = document.querySelector("[data-nav-toggle]");
-    var nav = document.querySelector(".main-nav");
-    if (toggle && nav) {
-      toggle.addEventListener("click", function () {
-        nav.classList.toggle("open");
-        var opening = nav.classList.contains("open");
-        toggle.innerHTML = icon(opening ? "x" : "menu", 19);
-      });
-      toggle.innerHTML = icon("menu", 19);
-    }
     document.querySelectorAll("[data-search-form]").forEach(function (form) {
       form.addEventListener("submit", function (e) {
         e.preventDefault();
@@ -324,8 +314,162 @@
      data-i18n-html (innerHTML, for markup like <em>) or data-i18n-placeholder.
      Product/catalog content stays Russian for now.
      ========================================================================== */
+  /* ==========================================================================
+     AUTH GATE — the whole site requires a logged-in account (customer or
+     admin) before any page content is usable, like Geran's phone login on
+     first open. Session helpers here are shared (same localStorage keys) so
+     admin.html / profile.html pick up the same session automatically.
+     ========================================================================== */
+  var API_BASE = "http://localhost:5080/api";
+  var TOKEN_KEY = "yosin_token";
+  var USER_KEY = "yosin_user";
+
+  function getToken() {
+    try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; }
+  }
+  function getUser() {
+    try {
+      var raw = localStorage.getItem(USER_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+  function setSession(token, user) {
+    try {
+      localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    } catch (e) {}
+  }
+  function clearSession() {
+    try {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+    } catch (e) {}
+  }
+
+  function renderAuthGate() {
+    if (getToken() && getUser()) return;
+    if (document.querySelector(".auth-gate")) return;
+
+    var gate = document.createElement("div");
+    gate.className = "auth-gate";
+    gate.innerHTML =
+      '<div class="admin-login-card" style="margin:0;">' +
+        '<span style="display:inline-flex;color:var(--gold-deep);margin-bottom:10px;">' + icon("user", 26) + '</span>' +
+        '<h3 id="gateTitle" style="margin:10px 0 6px;">Вход по номеру</h3>' +
+        '<p style="color:var(--ink-soft);font-size:13.5px;margin:0 0 20px;">Войдите, чтобы пользоваться Yosin Store.</p>' +
+        '<form id="gateLoginForm">' +
+          '<div class="field" style="margin-bottom:12px;">' +
+            '<label>Номер телефона</label>' +
+            '<input type="text" name="phone" placeholder="+992 90 000-00-00" required autocomplete="username">' +
+          '</div>' +
+          '<div class="field" style="margin-bottom:6px;">' +
+            '<label>Пароль</label>' +
+            '<input type="password" name="password" required autocomplete="current-password">' +
+          '</div>' +
+          '<button type="submit" class="btn btn-gold btn-block" style="margin-top:14px;">Войти</button>' +
+        '</form>' +
+        '<form id="gateRegisterForm" hidden>' +
+          '<div class="field" style="margin-bottom:12px;">' +
+            '<label>Ваше имя</label>' +
+            '<input type="text" name="fullName" required autocomplete="name">' +
+          '</div>' +
+          '<div class="field" style="margin-bottom:12px;">' +
+            '<label>Номер телефона</label>' +
+            '<input type="text" name="phone" placeholder="+992 90 000-00-00" required autocomplete="username">' +
+          '</div>' +
+          '<div class="field" style="margin-bottom:6px;">' +
+            '<label>Пароль</label>' +
+            '<input type="password" name="password" required minlength="6" autocomplete="new-password">' +
+          '</div>' +
+          '<button type="submit" class="btn btn-gold btn-block" style="margin-top:14px;">Зарегистрироваться</button>' +
+        '</form>' +
+        '<p id="gateError" class="admin-error" hidden></p>' +
+        '<button type="button" id="gateSwitchBtn" class="btn btn-ghost btn-block" style="margin-top:12px;">Нет аккаунта? Зарегистрироваться</button>' +
+      '</div>';
+
+    document.body.appendChild(gate);
+    document.body.classList.add("gate-locked");
+
+    var loginForm = gate.querySelector("#gateLoginForm");
+    var registerForm = gate.querySelector("#gateRegisterForm");
+    var title = gate.querySelector("#gateTitle");
+    var switchBtn = gate.querySelector("#gateSwitchBtn");
+    var errorEl = gate.querySelector("#gateError");
+
+    function setGateError(msg) {
+      errorEl.hidden = !msg;
+      errorEl.textContent = msg || "";
+    }
+
+    loginForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      setGateError("");
+      var fd = new FormData(loginForm);
+      fetch(API_BASE + "/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: fd.get("phone"), password: fd.get("password") }),
+      })
+        .catch(function () {
+          throw new Error("Не удалось подключиться к серверу. Бэкенд запущен?");
+        })
+        .then(function (res) {
+          if (!res.ok) {
+            return res.text().then(function (t) {
+              throw new Error(t || "Неверный телефон или пароль");
+            });
+          }
+          return res.json();
+        })
+        .then(function (data) {
+          setSession(data.token, data);
+          window.location.reload();
+        })
+        .catch(function (err) {
+          setGateError(err.message || "Ошибка входа");
+        });
+    });
+
+    registerForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      setGateError("");
+      var fd = new FormData(registerForm);
+      fetch(API_BASE + "/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName: fd.get("fullName"), phone: fd.get("phone"), password: fd.get("password") }),
+      })
+        .catch(function () {
+          throw new Error("Не удалось подключиться к серверу. Бэкенд запущен?");
+        })
+        .then(function (res) {
+          if (!res.ok) {
+            return res.text().then(function (t) {
+              throw new Error(t || "Не удалось зарегистрироваться");
+            });
+          }
+          return res.json();
+        })
+        .then(function (data) {
+          setSession(data.token, data);
+          window.location.reload();
+        })
+        .catch(function (err) {
+          setGateError(err.message || "Ошибка регистрации");
+        });
+    });
+
+    switchBtn.addEventListener("click", function () {
+      var showingLogin = !loginForm.hidden;
+      loginForm.hidden = showingLogin;
+      registerForm.hidden = !showingLogin;
+      title.textContent = showingLogin ? "Регистрация" : "Вход по номеру";
+      switchBtn.textContent = showingLogin ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться";
+      setGateError("");
+    });
+  }
+
   var LANG_KEY = "yosin_lang";
-  var LANG_LABELS = { ru: "RU", tj: "TJ", en: "EN" };
 
   var I18N = {
     ru: {
@@ -455,10 +599,7 @@
     document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
       el.setAttribute("placeholder", t(el.getAttribute("data-i18n-placeholder"), lang));
     });
-    document.querySelectorAll("[data-lang-current]").forEach(function (el) {
-      el.textContent = LANG_LABELS[lang] || "RU";
-    });
-    document.querySelectorAll("[data-lang-menu] [data-lang]").forEach(function (btn) {
+    document.querySelectorAll("[data-lang]").forEach(function (btn) {
       btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
     });
   }
@@ -467,10 +608,25 @@
     applyLanguage(getLang());
   }
 
+  /* Brief branded loading screen shown on every page load, like a native
+     app splash. Markup is static HTML (first thing in <body>) so it paints
+     instantly; this just fades it out once the page is ready. */
+  function initSplash() {
+    var splash = document.getElementById("splashScreen");
+    if (!splash) return;
+    function hide() {
+      splash.classList.add("splash-hide");
+      setTimeout(function () {
+        if (splash.parentNode) splash.parentNode.removeChild(splash);
+      }, 420);
+    }
+    setTimeout(hide, 550);
+  }
+
 
   /* Mobile bottom tab bar - Home / Favorites / Search / Catalog / Profile
-     (cart stays reachable via the header + top-bar icon, which is never
-     hidden on mobile) */
+     (cart stays reachable via the header icon, which is never hidden on
+     mobile) */
   function renderBottomNav() {
     if (document.querySelector(".bottom-nav")) return;
     var page = document.body.dataset.page || "";
@@ -492,7 +648,7 @@
       '<a href="catalog.html" class="' + cls("catalog") + '">' +
         '<span class="bn-icon-wrap">' + icon("grid", 21) + '</span><span class="bn-label" data-i18n="nav.catalog">Каталог</span>' +
       '</a>' +
-      '<a href="admin.html" class="' + cls("admin") + '">' +
+      '<a href="profile.html" class="' + (page === "profile" || page === "admin" ? "bn-item active" : "bn-item") + '">' +
         '<span class="bn-icon-wrap">' + icon("user", 21) + '</span><span class="bn-label" data-i18n="bn.profile">Профиль</span>' +
       '</a>';
 
@@ -510,62 +666,78 @@
     });
   }
 
-  /* Slim top status bar - logo, language switch, favorites/cart shortcuts.
-     Site-wide, injected before everything else in <body>. Not sticky, so it
-     never conflicts with the sticky .site-header or any --header-h maths. */
-  function renderTopBar() {
-    if (document.querySelector(".top-bar")) return;
-    var lang = getLang();
+  /* Side drawer (mobile hamburger menu) - logo/close header, nav links,
+     language switch, and a "Кабинет" button to the seller panel. Opens over
+     a dark overlay from the right, like a native app drawer. */
+  function renderSideDrawer() {
+    if (document.querySelector(".side-drawer")) return;
+    var page = document.body.dataset.page || "";
+    function itemCls(name) { return "drawer-link" + (page === name ? " active" : ""); }
 
-    var bar = document.createElement("div");
-    bar.className = "top-bar";
-    bar.innerHTML =
-      '<div class="container top-bar-inner">' +
-        '<a href="index.html" class="top-bar-logo">' +
+    var overlay = document.createElement("div");
+    overlay.className = "drawer-overlay";
+
+    var drawer = document.createElement("aside");
+    drawer.className = "side-drawer";
+    drawer.setAttribute("aria-label", "Меню");
+    drawer.innerHTML =
+      '<div class="drawer-head">' +
+        '<a href="index.html" class="drawer-logo">' +
           '<img src="assets/logo.jpg" alt="Yosin Store">' +
           '<span class="wordmark">YOSIN<em>.store</em></span>' +
         '</a>' +
-        '<div class="top-bar-actions">' +
-          '<div class="lang-switch" data-lang-switch>' +
-            '<button type="button" class="lang-current" data-lang-toggle data-lang-current>' + (LANG_LABELS[lang] || "RU") + '</button>' +
-            '<div class="lang-menu" data-lang-menu hidden>' +
-              '<button type="button" data-lang="ru">Русский</button>' +
-              '<button type="button" data-lang="tj">Тоҷикӣ</button>' +
-              '<button type="button" data-lang="en">English</button>' +
-            '</div>' +
-          '</div>' +
-          '<a class="icon-btn" href="favorites.html" aria-label="Избранное">' +
-            icon("heart", 18) +
-            '<span class="count" data-fav-count style="display:none;">0</span>' +
-          '</a>' +
-          '<a class="icon-btn" href="cart.html" aria-label="Корзина">' +
-            icon("cart", 18) +
-            '<span class="count" data-cart-count style="display:none;">0</span>' +
-          '</a>' +
-        '</div>' +
-      '</div>';
+        '<button type="button" class="drawer-close" data-drawer-close aria-label="Закрыть">' + icon("x", 18) + '</button>' +
+      '</div>' +
+      '<nav class="drawer-nav">' +
+        '<a href="index.html" class="' + itemCls("home") + '"><span>' + icon("home", 18) + '<span data-i18n="nav.home">Главная</span></span>' + icon("chevronRight", 16) + '</a>' +
+        '<a href="catalog.html" class="' + itemCls("catalog") + '"><span>' + icon("grid", 18) + '<span data-i18n="nav.catalog">Каталог</span></span>' + icon("chevronRight", 16) + '</a>' +
+        '<a href="catalog.html?category=phones" class="drawer-link"><span>' + icon("phone", 18) + '<span data-i18n="nav.phones">Смартфоны</span></span>' + icon("chevronRight", 16) + '</a>' +
+        '<a href="catalog.html?category=watches" class="drawer-link"><span>' + icon("watch", 18) + '<span data-i18n="nav.watches">Смарт-часы</span></span>' + icon("chevronRight", 16) + '</a>' +
+        '<a href="favorites.html" class="' + itemCls("favorites") + '"><span>' + icon("heart", 18) + '<span data-i18n="nav.favorites">Избранное</span></span>' + icon("chevronRight", 16) + '</a>' +
+        '<a href="cart.html" class="' + itemCls("cart") + '"><span>' + icon("cart", 18) + '<span data-i18n="footer.cart">Корзина</span></span>' + icon("chevronRight", 16) + '</a>' +
+      '</nav>' +
+      '<div class="drawer-lang">' +
+        '<button type="button" data-lang="ru">RU</button>' +
+        '<button type="button" data-lang="tj">TJ</button>' +
+        '<button type="button" data-lang="en">EN</button>' +
+      '</div>' +
+      '<a href="profile.html" class="drawer-cabinet">' + icon("user", 18) + '<span data-i18n="bn.profile">Кабинет</span></a>';
 
-    document.body.insertBefore(bar, document.body.firstChild);
+    document.body.appendChild(overlay);
+    document.body.appendChild(drawer);
 
-    var toggleBtn = bar.querySelector("[data-lang-toggle]");
-    var menu = bar.querySelector("[data-lang-menu]");
-    toggleBtn.addEventListener("click", function (e) {
-      e.stopPropagation();
-      menu.hidden = !menu.hidden;
-    });
-    menu.querySelectorAll("[data-lang]").forEach(function (btn) {
+    function openDrawer() {
+      drawer.classList.add("open");
+      overlay.classList.add("open");
+      document.body.classList.add("drawer-locked");
+    }
+    function closeDrawer() {
+      drawer.classList.remove("open");
+      overlay.classList.remove("open");
+      document.body.classList.remove("drawer-locked");
+    }
+
+    overlay.addEventListener("click", closeDrawer);
+    drawer.querySelector("[data-drawer-close]").addEventListener("click", closeDrawer);
+    drawer.querySelectorAll("[data-lang]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         applyLanguage(btn.getAttribute("data-lang"));
-        menu.hidden = true;
       });
     });
-    document.addEventListener("click", function (e) {
-      if (!menu.hidden && !bar.contains(e.target)) menu.hidden = true;
-    });
+
+    var toggle = document.querySelector("[data-nav-toggle]");
+    if (toggle) {
+      toggle.innerHTML = icon("menu", 19);
+      toggle.addEventListener("click", function () {
+        if (drawer.classList.contains("open")) closeDrawer(); else openDrawer();
+      });
+    }
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    renderTopBar();
+    initSplash();
+    renderAuthGate();
+    renderSideDrawer();
     renderBottomNav();
     wireHeader();
     hydrateIcons(document);
@@ -608,7 +780,13 @@
     getParam: getParam,
     hydrateIcons: hydrateIcons,
     renderBottomNav: renderBottomNav,
-    renderTopBar: renderTopBar,
+    renderSideDrawer: renderSideDrawer,
+    renderAuthGate: renderAuthGate,
+    getToken: getToken,
+    getUser: getUser,
+    setSession: setSession,
+    clearSession: clearSession,
+    API_BASE: API_BASE,
     applyLanguage: applyLanguage,
     getLang: getLang,
     FREE_SHIPPING_THRESHOLD: FREE_SHIPPING_THRESHOLD,

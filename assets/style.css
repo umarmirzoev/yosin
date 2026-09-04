@@ -500,19 +500,14 @@ em.accent{font-style:italic;color:var(--gold-deep);}
 .footer-bottom .mono{letter-spacing:.02em;}
 
 /* ---------------- Mobile nav ---------------- */
+/* The horizontal nav is replaced by the side drawer below 920px; the
+   hamburger button opens that drawer instead. */
 @media (max-width:920px){
-  .main-nav{
-    position:fixed;top:var(--header-h);left:0;right:0;bottom:0;
-    background:var(--paper);flex-direction:column;align-items:flex-start;
-    padding:24px;gap:4px;transform:translateX(-100%);transition:transform .25s;
-    z-index:99;overflow-y:auto;
-  }
-  .main-nav.open{transform:translateX(0);}
-  .main-nav a{width:100%;padding:14px 4px;border-bottom:1px solid var(--line);font-size:15px;}
+  .main-nav{display:none;}
   .header-search{display:none;}
   .nav-toggle{
     display:flex;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);
-    align-items:center;justify-content:center;background:var(--paper);flex-shrink:0;
+    align-items:center;justify-content:center;background:var(--paper);flex-shrink:0;cursor:pointer;
   }
   .header-inner{gap:12px;}
   .hero{grid-template-columns:1fr;padding:36px 0 44px;}
@@ -813,47 +808,6 @@ em.accent{font-style:italic;color:var(--gold-deep);}
 }
 .admin-modal-close:hover{border-color:var(--gold);color:var(--ink);}
 
-/* ==========================================================================
-   TOP BAR — slim app-style strip above the header: logo, language switch,
-   favorites/cart shortcuts. Scrolls away with the page (not sticky), so it
-   never competes with the sticky .site-header below it.
-   ========================================================================== */
-.top-bar{
-  background:var(--tint);border-bottom:1px solid var(--line);
-}
-.top-bar-inner{
-  height:40px;display:flex;align-items:center;justify-content:space-between;gap:14px;
-}
-.top-bar-logo{display:flex;align-items:center;gap:7px;text-decoration:none;color:inherit;flex-shrink:0;}
-.top-bar-logo img{width:21px;height:21px;border-radius:6px;object-fit:cover;}
-.top-bar-logo .wordmark{font-family:'Fraunces',serif;font-weight:600;font-size:12.5px;letter-spacing:.01em;color:var(--ink);}
-.top-bar-logo .wordmark em{font-style:normal;color:var(--gold-deep);}
-.top-bar-actions{display:flex;align-items:center;gap:8px;}
-.top-bar-actions .icon-btn{width:30px;height:30px;}
-.top-bar-actions .icon-btn svg{width:15px;height:15px;}
-.top-bar-actions .icon-btn .count{top:-3px;right:-3px;min-width:14px;height:14px;font-size:8px;line-height:14px;}
-
-.lang-switch{position:relative;}
-.lang-current{
-  border:1px solid var(--line);background:var(--paper);border-radius:100px;
-  padding:5px 12px;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--ink-soft);
-  font-family:inherit;cursor:pointer;transition:border-color .15s, color .15s;
-}
-.lang-current:hover{border-color:var(--gold);color:var(--ink);}
-.lang-menu{
-  position:absolute;top:calc(100% + 8px);right:0;background:var(--paper);
-  border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-md);
-  padding:6px;min-width:132px;z-index:400;
-}
-.lang-menu[hidden]{display:none;}
-.lang-menu button{
-  display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;
-  border:none;background:none;font-family:inherit;font-size:12.5px;color:var(--ink-soft);
-  cursor:pointer;transition:background .15s, color .15s;
-}
-.lang-menu button:hover{background:var(--tint);color:var(--ink);}
-.lang-menu button.active{color:var(--gold-deep);font-weight:700;}
-
 /* Raised circular search button in the bottom tab bar, echoing the floating
    center action of an app-style nav — done in our own gold, not green. */
 @media (max-width:760px){
@@ -864,6 +818,142 @@ em.accent{font-style:italic;color:var(--gold-deep);}
     margin-top:-22px;
     box-shadow:0 10px 22px -8px rgba(184,138,44,.55), 0 0 0 4px var(--paper);
   }
-  .bn-search.active .bn-icon-wrap{margin-top:-22px;}
 }
+
+/* ==========================================================================
+   SIDE DRAWER — mobile hamburger menu. Slides in from the right over a dark
+   overlay: logo + close button, nav links, language switch, cabinet button.
+   ========================================================================== */
+.drawer-overlay{
+  position:fixed;inset:0;background:rgba(20,32,25,.45);
+  opacity:0;pointer-events:none;transition:opacity .25s;z-index:540;
+}
+.drawer-overlay.open{opacity:1;pointer-events:auto;}
+.side-drawer{
+  position:fixed;top:0;right:0;bottom:0;width:82%;max-width:340px;
+  background:var(--paper);box-shadow:var(--shadow-lg);
+  transform:translateX(100%);transition:transform .28s var(--ease-out);
+  z-index:550;display:flex;flex-direction:column;padding:20px 18px;overflow-y:auto;
+}
+.side-drawer.open{transform:translateX(0);}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.drawer-logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;}
+.drawer-logo img{width:26px;height:26px;border-radius:7px;object-fit:cover;}
+.drawer-logo .wordmark{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--ink);}
+.drawer-logo .wordmark em{font-style:normal;color:var(--gold-deep);}
+.drawer-close{
+  width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--paper);
+  display:flex;align-items:center;justify-content:center;color:var(--ink-soft);cursor:pointer;flex-shrink:0;
+}
+.drawer-close:hover{border-color:var(--gold);color:var(--ink);}
+.drawer-nav{display:flex;flex-direction:column;gap:3px;margin-bottom:18px;}
+.drawer-link{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px;border-radius:12px;color:var(--ink-soft);font-weight:600;font-size:14px;
+  transition:background .15s, color .15s;
+}
+.drawer-link span:first-child{display:flex;align-items:center;gap:10px;}
+.drawer-link svg{flex-shrink:0;}
+.drawer-link:hover{background:var(--tint);color:var(--ink);}
+.drawer-link.active{background:var(--gold-pale);color:var(--gold-deep);}
+.drawer-lang{display:flex;gap:8px;margin:4px 0 20px;padding-top:16px;border-top:1px solid var(--line);}
+.drawer-lang button{
+  flex:1;padding:9px 0;border-radius:100px;border:1px solid var(--line);background:var(--paper);
+  font-family:inherit;font-size:12px;font-weight:700;letter-spacing:.03em;color:var(--ink-soft);cursor:pointer;
+  transition:border-color .15s, color .15s, background .15s;
+}
+.drawer-lang button:hover{border-color:var(--gold);color:var(--ink);}
+.drawer-lang button.active{border-color:var(--gold);color:var(--gold-deep);background:var(--gold-pale);}
+.drawer-cabinet{
+  margin-top:auto;display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:14px;border-radius:100px;background:var(--gold);color:#fff;font-weight:700;font-size:14px;
+  transition:box-shadow .2s, transform .2s;
+}
+.drawer-cabinet:hover{box-shadow:var(--glow-gold-sm);}
+.drawer-cabinet:active{transform:scale(.98);}
+body.drawer-locked{overflow:hidden;}
+
+/* ==========================================================================
+   SPLASH SCREEN — brief branded loading screen on every page load.
+   ========================================================================== */
+.splash-screen{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  background:linear-gradient(160deg, var(--gold-deep), var(--gold) 60%, var(--gold-bright));
+  transition:opacity .4s var(--ease-out);
+}
+.splash-screen.splash-hide{opacity:0;pointer-events:none;}
+.splash-logo img{width:60px;height:60px;border-radius:16px;box-shadow:0 12px 30px -10px rgba(0,0,0,.4);object-fit:cover;display:block;}
+.splash-word{font-family:'Fraunces',serif;font-weight:700;font-size:21px;color:#fff;letter-spacing:.01em;}
+.splash-word em{font-style:normal;opacity:.85;}
+.splash-bar{width:130px;height:4px;border-radius:100px;background:rgba(255,255,255,.28);overflow:hidden;margin-top:4px;}
+.splash-bar span{display:block;height:100%;width:40%;background:#fff;border-radius:100px;animation:splashSlide 1.1s ease-in-out infinite;}
+@keyframes splashSlide{
+  0%{transform:translateX(-120%);}
+  100%{transform:translateX(340%);}
+}
+.splash-text{font-size:11.5px;color:rgba(255,255,255,.85);letter-spacing:.04em;}
+@media (prefers-reduced-motion: reduce){
+  .splash-bar span{animation:none;left:0;}
+  .splash-screen{transition:none;}
+}
+
+/* ==========================================================================
+   PROFILE PAGE — customer account (login/register + orders/favorites).
+   ========================================================================== */
+.profile-head{display:flex;align-items:center;gap:14px;margin-bottom:22px;flex-wrap:wrap;}
+.profile-avatar{
+  width:52px;height:52px;border-radius:50%;background:var(--gold-pale);color:var(--gold-deep);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.profile-stats{display:flex;gap:14px;margin-bottom:22px;}
+.profile-stat{
+  flex:1;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:16px;text-align:center;
+}
+.profile-stat b{display:block;font-family:'Fraunces',serif;font-size:22px;color:var(--ink);margin-bottom:4px;}
+.profile-stat span{font-size:12px;color:var(--ink-soft);}
+.profile-seller-banner{
+  display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:var(--radius-md);
+  background:var(--gold-pale);color:var(--gold-deep);font-weight:700;font-size:13.5px;margin-bottom:22px;
+  transition:box-shadow .2s;
+}
+.profile-seller-banner:hover{box-shadow:var(--glow-gold-sm);}
+.profile-section{margin-bottom:22px;}
+.profile-section h3{font-size:15px;margin-bottom:12px;}
+.profile-empty{color:var(--ink-faint);font-size:13px;padding:18px 0;text-align:center;}
+.order-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:14px 16px;margin-bottom:10px;
+}
+.order-card-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;}
+.order-card-num{font-weight:700;font-size:13.5px;}
+.order-card-status{
+  display:inline-block;padding:3px 10px;border-radius:100px;font-size:10.5px;font-weight:700;
+  background:var(--tint);color:var(--ink-soft);white-space:nowrap;
+}
+.order-card-date{font-size:11.5px;color:var(--ink-faint);}
+.order-card-total{font-family:'Fraunces',serif;font-weight:600;font-size:14px;margin-top:6px;}
+.profile-row{
+  display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:var(--radius-md);
+  background:var(--paper);border:1px solid var(--line);margin-bottom:10px;color:var(--ink);
+  font-weight:600;font-size:13.5px;transition:border-color .15s;
+}
+.profile-row:hover{border-color:var(--gold);}
+.profile-row svg:last-child{margin-left:auto;color:var(--ink-faint);}
+
+/* ==========================================================================
+   AUTH GATE — full-screen login/register required before the site is
+   usable. Sits above everything except the splash screen.
+   ========================================================================== */
+.auth-gate{
+  position:fixed;inset:0;z-index:900;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;overflow-y:auto;
+}
+.auth-gate .admin-login-card{width:100%;}
+body.gate-locked{overflow:hidden;}
+
+
 

@@ -3,19 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Кабинет продавца — Yosin Store</title>
-<meta name="robots" content="noindex, nofollow">
+<title>Профиль — Yosin Store</title>
 <link rel="icon" href="assets/logo.jpg">
 <link rel="stylesheet" href="assets/style.css">
 </head>
-<body data-page="admin">
+<body data-page="profile">
 <div class="splash-screen" id="splashScreen">
   <div class="splash-logo"><img src="assets/logo.jpg" alt="Yosin Store"></div>
   <div class="splash-word">YOSIN<em>.store</em></div>
   <div class="splash-bar"><span></span></div>
   <div class="splash-text">Загрузка…</div>
 </div>
-
 
 <header class="site-header">
   <div class="container header-inner">
@@ -55,13 +53,14 @@
 </header>
 
 <main class="container" style="padding-bottom:60px;">
-  <div class="breadcrumb"><a href="index.html">Главная</a><span class="sep">/</span><span>Кабинет продавца</span></div>
-  <h1 style="font-size:26px;margin:18px 0 24px;">Кабинет продавца</h1>
+  <div class="breadcrumb"><a href="index.html">Главная</a><span class="sep">/</span><span>Профиль</span></div>
+  <h1 style="font-size:26px;margin:18px 0 24px;">Профиль</h1>
 
-  <section id="adminLoginView" class="admin-login-card">
+  <section id="profileGuestView" class="admin-login-card">
     <span data-icon="user" data-size="26" style="color:var(--gold-deep);margin-bottom:10px;"></span>
-    <h3 style="margin-bottom:6px;">Вход для администратора</h3>
-    <p style="color:var(--ink-soft);font-size:13.5px;margin:0 0 20px;">Введите номер телефона и пароль администратора.</p>
+    <h3 id="authTitle" style="margin-bottom:6px;">Вход по номеру</h3>
+    <p style="color:var(--ink-soft);font-size:13.5px;margin:0 0 20px;">Войдите, чтобы видеть свои заказы и избранное.</p>
+
     <form id="loginForm">
       <div class="field" style="margin-bottom:12px;">
         <label>Номер телефона</label>
@@ -71,74 +70,72 @@
         <label>Пароль</label>
         <input type="password" name="password" required autocomplete="current-password">
       </div>
-      <p id="loginError" class="admin-error" hidden></p>
       <button type="submit" class="btn btn-gold btn-block" style="margin-top:14px;">Войти</button>
     </form>
+
+    <form id="registerForm" hidden>
+      <div class="field" style="margin-bottom:12px;">
+        <label>Ваше имя</label>
+        <input type="text" name="fullName" required autocomplete="name">
+      </div>
+      <div class="field" style="margin-bottom:12px;">
+        <label>Номер телефона</label>
+        <input type="text" name="phone" placeholder="+992 90 000-00-00" required autocomplete="username">
+      </div>
+      <div class="field" style="margin-bottom:6px;">
+        <label>Пароль</label>
+        <input type="password" name="password" required minlength="6" autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn btn-gold btn-block" style="margin-top:14px;">Зарегистрироваться</button>
+    </form>
+
+    <p id="authError" class="admin-error" hidden></p>
+
+    <button type="button" id="authSwitchBtn" class="btn btn-ghost btn-block" style="margin-top:12px;">Нет аккаунта? Зарегистрироваться</button>
     <p style="font-size:11.5px;color:var(--ink-faint);margin-top:16px;">
-      Нужен запущенный локальный сервер Yosin API (<span class="mono" id="apiBaseLabel"></span>).
+      Нужен запущенный локальный сервер Yosin API.
     </p>
   </section>
 
-  <section id="adminDashboardView" hidden>
-    <div class="admin-toolbar">
+  <section id="profileAccountView" hidden>
+    <div class="profile-head">
+      <div class="profile-avatar">
+        <span data-icon="user" data-size="22"></span>
+      </div>
       <div>
-        <div id="adminGreeting" style="font-weight:700;"></div>
-        <div id="adminStats" class="admin-stats"></div>
+        <div id="profileName" style="font-weight:700;font-size:16px;"></div>
+        <div id="profilePhone" style="color:var(--ink-soft);font-size:13px;"></div>
       </div>
-      <div style="display:flex;gap:10px;">
-        <button type="button" class="btn btn-gold" id="addProductBtn">+ Добавить товар</button>
-        <button type="button" class="btn btn-ghost" id="logoutBtn">Выйти</button>
-      </div>
+      <button type="button" class="btn btn-ghost" id="logoutBtn" style="margin-left:auto;">Выйти</button>
     </div>
 
-    <p id="adminLoadError" class="admin-error" hidden></p>
+    <div class="profile-stats">
+      <div class="profile-stat"><b id="statOrders">0</b><span>Заказы</span></div>
+      <div class="profile-stat"><b id="statFavs">0</b><span>Избранное</span></div>
+    </div>
 
-    <div id="productsTable" class="admin-table"></div>
+    <a href="admin.html" id="sellerBanner" class="profile-seller-banner" hidden>
+      <span data-icon="award" data-size="18"></span>
+      <span>Вы вошли как администратор — открыть кабинет продавца →</span>
+    </a>
+
+    <div class="profile-section">
+      <h3>Мои заказы</h3>
+      <div id="ordersList"><p class="profile-empty">Загрузка…</p></div>
+    </div>
+
+    <a href="favorites.html" class="profile-row">
+      <span data-icon="heart" data-size="17"></span>
+      <span>Избранное</span>
+      <span data-icon="chevronRight" data-size="16"></span>
+    </a>
+    <a href="cart.html" class="profile-row">
+      <span data-icon="cart" data-size="17"></span>
+      <span>Корзина</span>
+      <span data-icon="chevronRight" data-size="16"></span>
+    </a>
   </section>
 </main>
-
-<div class="admin-modal" id="productModal" hidden>
-  <div class="admin-modal-card">
-    <div class="admin-modal-head">
-      <h3 id="productModalTitle">Добавить товар</h3>
-      <button type="button" class="admin-modal-close" id="closeProductModal" aria-label="Закрыть">&times;</button>
-    </div>
-    <form id="productForm">
-      <input type="hidden" name="id">
-      <div class="field" style="margin-bottom:12px;">
-        <label>Название</label>
-        <input name="name" required>
-      </div>
-      <div class="field" style="margin-bottom:12px;">
-        <label>Slug (латиницей, без пробелов)</label>
-        <input name="slug" required>
-      </div>
-      <div class="field" style="margin-bottom:12px;">
-        <label>Описание</label>
-        <textarea name="description" rows="3"></textarea>
-      </div>
-      <div class="form-grid" style="margin-bottom:12px;">
-        <div class="field"><label>Цена, смн</label><input type="number" name="price" required min="0" step="0.01"></div>
-        <div class="field"><label>Старая цена (если скидка)</label><input type="number" name="oldPrice" min="0" step="0.01"></div>
-        <div class="field"><label>Себестоимость</label><input type="number" name="costPrice" min="0" step="0.01" value="0"></div>
-        <div class="field"><label>Остаток, шт</label><input type="number" name="stock" required min="0" value="0"></div>
-      </div>
-      <div class="field" style="margin-bottom:12px;">
-        <label>Ссылка на фото</label>
-        <input name="mainImageUrl" placeholder="https://...">
-      </div>
-      <div class="form-grid" style="margin-bottom:6px;">
-        <div class="field"><label>Категория</label><select name="categoryId" id="categorySelect" required></select></div>
-        <div class="field"><label>Бренд</label><select name="brandId" id="brandSelect"><option value="">—</option></select></div>
-      </div>
-      <p id="productFormError" class="admin-error" hidden></p>
-      <div style="display:flex;gap:10px;margin-top:16px;">
-        <button type="button" class="btn btn-ghost btn-block" id="cancelProductBtn">Отмена</button>
-        <button type="submit" class="btn btn-gold btn-block" id="saveProductBtn">Сохранить</button>
-      </div>
-    </form>
-  </div>
-</div>
 
 <footer class="site-footer">
   <div class="container">
@@ -173,6 +170,7 @@
         <a href="#">Душанбе, Рудаки 45</a>
         <a href="#">Telegram: @yosin_store</a>
         <a href="#" data-i18n="footer.hours">Пн–Вс, 9:00–20:00</a>
+        <a href="admin.html" style="opacity:.55;font-size:11.5px;" data-i18n="footer.sellerCabinet">Кабинет продавца</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -184,6 +182,6 @@
 
 <script src="data/products.js"></script>
 <script src="assets/script.js"></script>
-<script src="assets/admin.js"></script>
+<script src="assets/profile.js"></script>
 </body>
 </html>
