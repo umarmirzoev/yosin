@@ -188,7 +188,39 @@
 
       var orderNumber = "YS-" + (20800 + Math.floor(Math.random() * 900));
       var etaLabel = delivery === "courier" ? "сегодня, до 19:00" : "самовывоз через 40 минут";
-      var totalNow = Yosin.calcTotals(Yosin.cartLines()).total;
+      var currentLines = Yosin.cartLines();
+      var totalNow = Yosin.calcTotals(currentLines).total;
+
+      var paymentLabel = { card: "Картой онлайн", cash: "Наличными при получении", installment: "Рассрочка 0-0-12" }[payment] || payment;
+      var deliveryLabel = delivery === "courier" ? ("Курьером — " + address) : "Самовывоз (Душанбе, Рудаки 45)";
+
+      var waLines = [
+        "🛍️ Новый заказ " + orderNumber,
+        "",
+        "Имя: " + name,
+        "Телефон: " + phone,
+        "Доставка: " + deliveryLabel,
+        "Оплата: " + paymentLabel,
+        "",
+        "Товары:"
+      ];
+      currentLines.forEach(function (l) {
+        waLines.push("• " + l.product.name + " × " + l.qty + " — " + Yosin.formatPrice(l.product.price * l.qty));
+      });
+      waLines.push("");
+      waLines.push("Итого: " + Yosin.formatPrice(totalNow));
+
+      var waText = encodeURIComponent(waLines.join("\n"));
+      var waUrl = "https://wa.me/992979227447?text=" + waText;
+
+      // Trigger via a real anchor click (more reliable than window.open on mobile Safari/Chrome)
+      var waLink = document.createElement("a");
+      waLink.href = waUrl;
+      waLink.target = "_blank";
+      waLink.rel = "noopener";
+      document.body.appendChild(waLink);
+      waLink.click();
+      waLink.remove();
 
       Yosin.clearCart();
       root.innerHTML =
@@ -201,6 +233,7 @@
         '<div class="r"><span class="k">Доставка</span><span class="v">' + etaLabel + '</span></div>' +
         '<div class="r"><span class="k">Оплата</span><span class="v">' + Yosin.formatPrice(totalNow) + '</span></div>' +
         '</div>' +
+        '<a href="' + waUrl + '" target="_blank" rel="noopener" class="btn btn-block" style="margin-top:14px;background:#25D366;color:#fff;">Открыть WhatsApp с заказом</a>' +
         '<div class="success-actions">' +
         '<a href="index.html" class="btn btn-primary">На главную</a>' +
         '<a href="catalog.html" class="btn btn-ghost">Продолжить покупки</a>' +
