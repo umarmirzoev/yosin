@@ -259,6 +259,11 @@
     }
 
     if (getToken() && getUser()) {
+      var currentUser = getUser();
+      if (currentUser && currentUser.role === "Admin") {
+        window.location.href = "admin.html";
+        return;
+      }
       showAccountView();
     } else {
       showGuestView();
