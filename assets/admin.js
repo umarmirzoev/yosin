@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var API_BASE = "http://localhost:5080/api";
+  var API_BASE = "http://91.227.41.15/api";
   var TOKEN_KEY = "yosin_token";
   var USER_KEY = "yosin_user";
 
