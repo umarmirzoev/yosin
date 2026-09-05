@@ -964,6 +964,9 @@ body.gate-locked{overflow:hidden;}
    Same ink/gold/ivory system as the storefront, just laid out as an app.
    ========================================================================== */
 .admin-app{display:flex;min-height:100vh;background:var(--tint);}
+.admin-login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--tint);}
+.admin-login-wrap[hidden]{display:none;}
+
 
 .admin-sidebar{
   width:264px;flex:0 0 264px;background:var(--ink);color:#EFE9DC;
