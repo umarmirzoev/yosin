@@ -209,12 +209,39 @@
         <div class="field"><label>Остаток, шт</label><input type="number" name="stock" required min="0" value="0"></div>
       </div>
       <div class="field" style="margin-bottom:12px;">
-        <label>Ссылка на фото</label>
-        <input name="mainImageUrl" placeholder="https://...">
+        <label>Главное фото</label>
+        <input type="hidden" name="mainImageUrl">
+        <div class="admin-photo-picker">
+          <div class="admin-photo-preview" id="mainImagePreview"><span data-icon="box" data-size="22"></span></div>
+          <label class="btn btn-ghost admin-photo-btn">
+            Выбрать фото
+            <input type="file" accept="image/*" id="mainImageInput" hidden>
+          </label>
+        </div>
+        <p id="mainImageStatus" class="admin-photo-status" hidden></p>
+      </div>
+      <div class="field" style="margin-bottom:12px;">
+        <label>Доп. фото (галерея)</label>
+        <div class="admin-gallery-grid" id="galleryGrid"></div>
+        <label class="btn btn-ghost admin-photo-btn admin-gallery-add">
+          + Добавить фото (можно несколько, из галереи)
+          <input type="file" accept="image/*" multiple id="galleryInput" hidden>
+        </label>
+        <p id="galleryStatus" class="admin-photo-status" hidden></p>
+      </div>
+      <div class="form-grid" style="margin-bottom:12px;">
+        <div class="field"><label>Доступные цвета</label><input name="availableColors" placeholder="Чёрный, Белый, Золотой"></div>
+        <div class="field"><label>Память / объём</label><input name="storageOptions" placeholder="128GB, 256GB, 512GB"></div>
       </div>
       <div class="form-grid" style="margin-bottom:6px;">
         <div class="field"><label>Категория</label><select name="categoryId" id="categorySelect" required></select></div>
-        <div class="field"><label>Бренд</label><select name="brandId" id="brandSelect"><option value="">—</option></select></div>
+        <div class="field">
+          <label>Бренд</label>
+          <div style="display:flex;gap:6px;">
+            <select name="brandId" id="brandSelect" style="flex:1;"><option value="">—</option></select>
+            <button type="button" class="btn btn-ghost" id="addBrandBtn" title="Добавить бренд" style="flex:0 0 auto;padding:0 14px;">+</button>
+          </div>
+        </div>
       </div>
       <p id="productFormError" class="admin-error" hidden></p>
       <div style="display:flex;gap:10px;margin-top:16px;">

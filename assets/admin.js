@@ -23,6 +23,7 @@
     productFilter: "",
     searchTerm: "",
     editingId: null,
+    galleryImages: [],
   };
 
   /* ---------------- Session ---------------- */
@@ -77,6 +78,30 @@
         var ct = res.headers.get("content-type") || "";
         if (ct.indexOf("application/json") !== -1) return res.json();
         return null;
+      });
+  }
+
+  function uploadImage(file) {
+    var fd = new FormData();
+    fd.append("file", file);
+    var headers = {};
+    var token = getToken();
+    if (token) headers["Authorization"] = "Bearer " + token;
+
+    return fetch(API_BASE + "/upload/image", { method: "POST", headers: headers, body: fd })
+      .catch(function () {
+        throw new Error("Не удалось подключиться к серверу.");
+      })
+      .then(function (res) {
+        if (res.status === 401 || res.status === 403) {
+          clearSession();
+          showLoginView("Сессия истекла, войдите снова.");
+          throw new Error("Требуется повторный вход");
+        }
+        return res.json().then(function (data) {
+          if (!res.ok) throw new Error((data && data.message) || "Не удалось загрузить фото");
+          return data;
+        });
       });
   }
 
@@ -365,10 +390,29 @@
     }).join("");
   }
 
+  function renderMainImagePreview(url) {
+    if (!els.mainImagePreview) return;
+    if (url) {
+      els.mainImagePreview.innerHTML = '<img src="' + url + '" alt="">';
+    } else {
+      els.mainImagePreview.innerHTML = icon("box", 22);
+    }
+  }
+
+  function renderGalleryGrid() {
+    if (!els.galleryGrid) return;
+    els.galleryGrid.innerHTML = (state.galleryImages || []).map(function (url, idx) {
+      return '<div class="admin-gallery-item"><img src="' + url + '" alt="">' +
+        '<button type="button" class="rm" data-remove-gallery="' + idx + '">&times;</button></div>';
+    }).join("");
+  }
+
   function openProductModal(id) {
     state.editingId = id || null;
     if (els.productForm) els.productForm.reset();
     if (els.productFormError) { els.productFormError.hidden = true; els.productFormError.textContent = ""; }
+    if (els.mainImageStatus) els.mainImageStatus.hidden = true;
+    if (els.galleryStatus) els.galleryStatus.hidden = true;
 
     if (id) {
       var p = state.products.find(function (x) { return String(x.id) === String(id); });
@@ -383,13 +427,20 @@
         setFieldValue("costPrice", 0);
         setFieldValue("stock", p.stock);
         setFieldValue("mainImageUrl", p.mainImageUrl);
+        setFieldValue("availableColors", p.availableColors);
+        setFieldValue("storageOptions", p.storageOptions);
         setFieldValue("categoryId", p.categoryId);
         setFieldValue("brandId", p.brandId);
+        renderMainImagePreview(p.mainImageUrl);
+        state.galleryImages = Array.isArray(p.images) ? p.images.slice() : [];
       }
     } else {
       if (els.modalTitle) els.modalTitle.textContent = "Добавить товар";
       setFieldValue("id", "");
+      renderMainImagePreview(null);
+      state.galleryImages = [];
     }
+    renderGalleryGrid();
     if (els.productModal) els.productModal.hidden = false;
   }
 
@@ -402,6 +453,60 @@
   function closeProductModal() {
     if (els.productModal) els.productModal.hidden = true;
     state.editingId = null;
+    state.galleryImages = [];
+  }
+
+  function handleMainImageInput(e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (els.mainImageStatus) { els.mainImageStatus.hidden = false; els.mainImageStatus.classList.remove("err"); els.mainImageStatus.textContent = "Загрузка…"; }
+    uploadImage(file)
+      .then(function (data) {
+        setFieldValue("mainImageUrl", data.url);
+        renderMainImagePreview(data.url);
+        if (els.mainImageStatus) els.mainImageStatus.hidden = true;
+      })
+      .catch(function (err) {
+        if (els.mainImageStatus) {
+          els.mainImageStatus.hidden = false;
+          els.mainImageStatus.classList.add("err");
+          els.mainImageStatus.textContent = err.message || "Не удалось загрузить фото";
+        }
+      })
+      .finally(function () { e.target.value = ""; });
+  }
+
+  function handleGalleryInput(e) {
+    var files = Array.prototype.slice.call(e.target.files || []);
+    if (!files.length) return;
+    if (els.galleryStatus) { els.galleryStatus.hidden = false; els.galleryStatus.classList.remove("err"); els.galleryStatus.textContent = "Загрузка…"; }
+    Promise.all(files.map(function (f) { return uploadImage(f); }))
+      .then(function (results) {
+        results.forEach(function (data) { state.galleryImages.push(data.url); });
+        renderGalleryGrid();
+        if (els.galleryStatus) els.galleryStatus.hidden = true;
+      })
+      .catch(function (err) {
+        if (els.galleryStatus) {
+          els.galleryStatus.hidden = false;
+          els.galleryStatus.classList.add("err");
+          els.galleryStatus.textContent = err.message || "Не удалось загрузить фото";
+        }
+        renderGalleryGrid();
+      })
+      .finally(function () { e.target.value = ""; });
+  }
+
+  function addBrandQuick() {
+    var name = window.prompt("Название бренда (например Apple, Samsung):");
+    if (!name || !name.trim()) return;
+    apiFetch("/brands", { method: "POST", body: JSON.stringify({ name: name.trim() }) })
+      .then(function (brand) {
+        state.brands.push(brand);
+        renderSelectOptions();
+        if (els.brandSelect) els.brandSelect.value = brand.id;
+      })
+      .catch(function (err) { window.alert(err.message || "Не удалось добавить бренд"); });
   }
 
   function deleteProduct(id) {
@@ -431,8 +536,11 @@
       costPrice: Number(fd.get("costPrice") || 0),
       stock: Number(fd.get("stock") || 0),
       mainImageUrl: fd.get("mainImageUrl") || "",
+      availableColors: fd.get("availableColors") ? String(fd.get("availableColors")).trim() : null,
+      storageOptions: fd.get("storageOptions") ? String(fd.get("storageOptions")).trim() : null,
       categoryId: Number(fd.get("categoryId") || 0),
       brandId: fd.get("brandId") ? Number(fd.get("brandId")) : null,
+      images: (state.galleryImages || []).slice(),
     };
 
     var request;
@@ -623,7 +731,14 @@
     els.closeProductModal = document.getElementById("closeProductModal");
     els.categorySelect = document.getElementById("categorySelect");
     els.brandSelect = document.getElementById("brandSelect");
+    els.addBrandBtn = document.getElementById("addBrandBtn");
     els.modalTitle = document.getElementById("productModalTitle");
+    els.mainImagePreview = document.getElementById("mainImagePreview");
+    els.mainImageInput = document.getElementById("mainImageInput");
+    els.mainImageStatus = document.getElementById("mainImageStatus");
+    els.galleryGrid = document.getElementById("galleryGrid");
+    els.galleryInput = document.getElementById("galleryInput");
+    els.galleryStatus = document.getElementById("galleryStatus");
 
     els.addExpenseBtn = document.getElementById("addExpenseBtn");
     els.expenseModal = document.getElementById("expenseModal");
@@ -704,6 +819,18 @@
         var delId = e.target.getAttribute("data-delete");
         if (editId) openProductModal(editId);
         if (delId) deleteProduct(delId);
+      });
+    }
+    if (els.mainImageInput) els.mainImageInput.addEventListener("change", handleMainImageInput);
+    if (els.galleryInput) els.galleryInput.addEventListener("change", handleGalleryInput);
+    if (els.addBrandBtn) els.addBrandBtn.addEventListener("click", addBrandQuick);
+    if (els.galleryGrid) {
+      els.galleryGrid.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-remove-gallery]");
+        if (!btn) return;
+        var idx = Number(btn.getAttribute("data-remove-gallery"));
+        state.galleryImages.splice(idx, 1);
+        renderGalleryGrid();
       });
     }
 
