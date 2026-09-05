@@ -166,6 +166,10 @@
       })
       .then(function (data) {
         setSession(data.token, data);
+        if (data.role === "Admin") {
+          window.location.href = "admin.html";
+          return;
+        }
         showAccountView();
       })
       .catch(function (err) {
