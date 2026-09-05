@@ -19,48 +19,8 @@
   <div class="splash-text">Загрузка…</div>
 </div>
 
-
-<header class="site-header">
-  <div class="container header-inner">
-    <a href="index.html" class="brand">
-      <img src="assets/logo.jpg" alt="Yosin Store">
-      <span class="wordmark">YOSIN<em>.store</em></span>
-    </a>
-    <nav class="main-nav">
-      <a href="index.html" data-nav="index.html" data-i18n="nav.home">Главная</a>
-      <a href="catalog.html" data-nav="catalog.html" data-i18n="nav.catalog">Каталог</a>
-      <a href="catalog.html?category=phones" data-i18n="nav.phones">Смартфоны</a>
-      <a href="catalog.html?category=watches" data-i18n="nav.watches">Смарт-часы</a>
-      <a href="favorites.html" data-nav="favorites.html" data-i18n="nav.favorites">Избранное</a>
-    </nav>
-    <form class="header-search" data-search-form>
-      <span data-icon="search" data-size="17"></span>
-      <input type="search" name="q" placeholder="Найти iPhone, Galaxy Watch…" data-i18n-placeholder="header.searchDesktop">
-    </form>
-    <div class="header-actions">
-      <button class="nav-toggle" data-nav-toggle aria-label="Меню"></button>
-      <a class="icon-btn" href="favorites.html" aria-label="Избранное">
-        <span data-icon="heart" data-size="18"></span>
-        <span class="count" data-fav-count style="display:none;">0</span>
-      </a>
-      <a class="icon-btn" href="cart.html" aria-label="Корзина">
-        <span data-icon="cart" data-size="18"></span>
-        <span class="count" data-cart-count style="display:none;">0</span>
-      </a>
-    </div>
-  </div>
-  <div class="container mobile-search">
-    <form class="header-search" data-search-form>
-      <span data-icon="search" data-size="17"></span>
-      <input type="search" name="q" placeholder="Найти товар…" data-i18n-placeholder="header.searchMobile">
-    </form>
-  </div>
-</header>
-
-<main class="container" style="padding-bottom:60px;">
-  <div class="breadcrumb"><a href="index.html">Главная</a><span class="sep">/</span><span>Кабинет продавца</span></div>
-  <h1 style="font-size:26px;margin:18px 0 24px;">Кабинет продавца</h1>
-
+<!-- ============ LOGIN VIEW (shown when not authenticated as Admin) ============ -->
+<div id="adminLoginScreen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--tint);">
   <section id="adminLoginView" class="admin-login-card">
     <span data-icon="user" data-size="26" style="color:var(--gold-deep);margin-bottom:10px;"></span>
     <h3 style="margin-bottom:6px;">Вход для администратора</h3>
@@ -78,28 +38,150 @@
       <button type="submit" class="btn btn-gold btn-block" style="margin-top:14px;">Войти</button>
     </form>
     <p style="font-size:11.5px;color:var(--ink-faint);margin-top:16px;">
-      Нужен запущенный локальный сервер Yosin API (<span class="mono" id="apiBaseLabel"></span>).
+      <a href="index.html" style="color:var(--ink-faint);">&larr; Вернуться в магазин</a>
     </p>
   </section>
+</div>
 
-  <section id="adminDashboardView" hidden>
-    <div class="admin-toolbar">
-      <div>
-        <div id="adminGreeting" style="font-weight:700;"></div>
-        <div id="adminStats" class="admin-stats"></div>
-      </div>
-      <div style="display:flex;gap:10px;">
-        <button type="button" class="btn btn-gold" id="addProductBtn">+ Добавить товар</button>
-        <button type="button" class="btn btn-ghost" id="logoutBtn">Выйти</button>
-      </div>
+<!-- ============ DASHBOARD APP (shown when authenticated as Admin) ============ -->
+<div id="adminApp" class="admin-app" hidden>
+  <div class="drawer-overlay" id="sidebarOverlay" hidden></div>
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-brand">
+      <img src="assets/logo.jpg" alt="Yosin">
+      <span>YOSIN admin</span>
     </div>
+    <nav id="adminNav">
+      <div class="admin-nav-group active open" data-group="dashboard">
+        <button type="button" class="admin-nav-head" data-view="dashboard">
+          <span data-icon="grid" data-size="17"></span> Дашборд
+        </button>
+      </div>
+      <div class="admin-nav-group" data-group="orders">
+        <button type="button" class="admin-nav-head" data-toggle-group="orders">
+          <span data-icon="clipboard" data-size="17"></span> Заказы <span class="chev" data-icon="chevronDown" data-size="14"></span>
+        </button>
+        <ul class="admin-nav-sub">
+          <li><button type="button" class="active" data-view="orders" data-order-filter="">Все заказы</button></li>
+          <li><button type="button" data-view="orders" data-order-filter="New">Новые</button></li>
+          <li><button type="button" data-view="orders" data-order-filter="Processing">В обработке</button></li>
+          <li><button type="button" data-view="orders" data-order-filter="Shipped">Отправлено</button></li>
+          <li><button type="button" data-view="orders" data-order-filter="Delivered">Доставлено</button></li>
+          <li><button type="button" data-view="orders" data-order-filter="Cancelled">Отменено</button></li>
+        </ul>
+      </div>
+      <div class="admin-nav-group" data-group="products">
+        <button type="button" class="admin-nav-head" data-toggle-group="products">
+          <span data-icon="box" data-size="17"></span> Товары <span class="chev" data-icon="chevronDown" data-size="14"></span>
+        </button>
+        <ul class="admin-nav-sub">
+          <li><button type="button" class="active" data-view="products">Все товары</button></li>
+          <li><button type="button" data-view="products" data-product-filter="low">Низкий остаток</button></li>
+        </ul>
+      </div>
+      <div class="admin-nav-group" data-group="customers">
+        <button type="button" class="admin-nav-head" data-view="customers">
+          <span data-icon="user" data-size="17"></span> Клиенты
+        </button>
+      </div>
+      <div class="admin-nav-group" data-group="finance">
+        <button type="button" class="admin-nav-head" data-view="finance">
+          <span data-icon="wallet" data-size="17"></span> Финансы
+        </button>
+      </div>
+    </nav>
+    <div class="admin-sidebar-foot">
+      <button type="button" class="admin-nav-head" id="logoutBtn">
+        <span data-icon="logout" data-size="17"></span> Выйти
+      </button>
+    </div>
+  </aside>
 
-    <p id="adminLoadError" class="admin-error" hidden></p>
+  <div style="flex:1;min-width:0;">
+    <header class="admin-topbar">
+      <button type="button" class="admin-icon-btn" id="sidebarToggle" style="display:none;" aria-label="Меню">
+        <span data-icon="menu" data-size="18"></span>
+      </button>
+      <h1 id="viewTitle">Дашборд</h1>
+      <div class="admin-topbar-search">
+        <span data-icon="search" data-size="16"></span>
+        <input type="text" id="globalSearch" placeholder="Поиск по заказам, товарам, клиентам…">
+      </div>
+      <div class="admin-topbar-actions">
+        <button type="button" class="admin-icon-btn" id="refreshBtn" aria-label="Обновить">
+          <span data-icon="refresh" data-size="17"></span>
+        </button>
+        <div class="admin-profile-chip">
+          <div class="admin-profile-avatar" id="adminAvatar">A</div>
+          <div>
+            <div class="name" id="adminName">Admin</div>
+            <div class="role">Администратор</div>
+          </div>
+        </div>
+      </div>
+    </header>
 
-    <div id="productsTable" class="admin-table"></div>
-  </section>
-</main>
+    <main class="admin-content">
+      <p id="adminLoadError" class="admin-error" hidden></p>
 
+      <!-- ---------- DASHBOARD ---------- -->
+      <section class="admin-view active" id="view-dashboard">
+        <div class="admin-stat-cards" id="statCards"></div>
+        <div class="admin-card" id="revenueCard" style="margin-bottom:16px;"></div>
+        <div class="admin-grid-2">
+          <div class="admin-card">
+            <div class="admin-card-head"><h3>Последние заказы</h3><button type="button" class="link-btn" data-view="orders" data-order-filter="">Все заказы</button></div>
+            <div id="recentOrdersTable"></div>
+          </div>
+          <div class="admin-card">
+            <div class="admin-card-head"><h3>Товары на исходе</h3><button type="button" class="link-btn" data-view="products" data-product-filter="low">Все товары</button></div>
+            <div id="lowStockList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- ORDERS ---------- -->
+      <section class="admin-view" id="view-orders">
+        <div class="admin-filter-tabs" id="orderFilterTabs">
+          <button type="button" class="admin-filter-tab active" data-status="">Все</button>
+          <button type="button" class="admin-filter-tab" data-status="New">Новые</button>
+          <button type="button" class="admin-filter-tab" data-status="Processing">В обработке</button>
+          <button type="button" class="admin-filter-tab" data-status="Shipped">Отправлено</button>
+          <button type="button" class="admin-filter-tab" data-status="Delivered">Доставлено</button>
+          <button type="button" class="admin-filter-tab" data-status="Cancelled">Отменено</button>
+        </div>
+        <div class="admin-card"><div id="ordersTable"></div></div>
+      </section>
+
+      <!-- ---------- PRODUCTS ---------- -->
+      <section class="admin-view" id="view-products">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+          <button type="button" class="btn btn-gold" id="addProductBtn">+ Добавить товар</button>
+        </div>
+        <div class="admin-table" id="productsTable"></div>
+      </section>
+
+      <!-- ---------- CUSTOMERS ---------- -->
+      <section class="admin-view" id="view-customers">
+        <div class="admin-card"><div id="customersTable"></div></div>
+      </section>
+
+      <!-- ---------- FINANCE ---------- -->
+      <section class="admin-view" id="view-finance">
+        <div class="admin-stat-cards" id="financeCards" style="grid-template-columns:repeat(3,1fr);"></div>
+        <div class="admin-card">
+          <div class="admin-card-head">
+            <h3>Расходы по товарам</h3>
+            <button type="button" class="link-btn" id="addExpenseBtn">+ Добавить расход</button>
+          </div>
+          <div id="expensesTable"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- Product modal (add/edit) -->
 <div class="admin-modal" id="productModal" hidden>
   <div class="admin-modal-card">
     <div class="admin-modal-head">
@@ -143,47 +225,34 @@
   </div>
 </div>
 
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <div class="footer-brand">
-          <img src="assets/logo.jpg" alt="Yosin Store">
-          <span class="wordmark">YOSIN<em>.store</em></span>
-        </div>
-        <p data-i18n="footer.description">Оригинальная техника с официальной гарантией: смартфоны, смарт-часы, наушники и зарядные устройства. Шоурум в Душанбе и доставка по городу.</p>
-      </div>
-      <div class="footer-col">
-        <h5 data-i18n="footer.catalogTitle">Каталог</h5>
-        <a href="catalog.html?category=phones" data-i18n="nav.phones">Смартфоны</a>
-        <a href="catalog.html?category=watches" data-i18n="nav.watches">Смарт-часы</a>
-        <a href="catalog.html?category=headphones" data-i18n="footer.headphones">Наушники</a>
-        <a href="catalog.html?category=chargers" data-i18n="footer.chargers">Зарядные устройства</a>
-        <a href="catalog.html?category=powerbanks" data-i18n="footer.powerbanks">Powerbank</a>
-        <a href="catalog.html?category=accessories" data-i18n="footer.accessories">Аксессуары</a>
-      </div>
-      <div class="footer-col">
-        <h5 data-i18n="footer.customersTitle">Покупателям</h5>
-        <a href="cart.html" data-i18n="footer.cart">Корзина</a>
-        <a href="favorites.html" data-i18n="nav.favorites">Избранное</a>
-        <a href="checkout.html" data-i18n="footer.checkout">Оформление заказа</a>
-        <a href="#" data-i18n="footer.delivery">Доставка и оплата</a>
-        <a href="#" data-i18n="footer.warranty">Гарантия и возврат</a>
-      </div>
-      <div class="footer-col">
-        <h5 data-i18n="footer.contactsTitle">Контакты</h5>
-        <a href="tel:+992900000000">+992 90 000-00-00</a>
-        <a href="#">Душанбе, Рудаки 45</a>
-        <a href="#">Telegram: @yosin_store</a>
-        <a href="#" data-i18n="footer.hours">Пн–Вс, 9:00–20:00</a>
-      </div>
+<!-- Expense modal (add) -->
+<div class="admin-modal" id="expenseModal" hidden>
+  <div class="admin-modal-card">
+    <div class="admin-modal-head">
+      <h3>Добавить расход</h3>
+      <button type="button" class="admin-modal-close" id="closeExpenseModal" aria-label="Закрыть">&times;</button>
     </div>
-    <div class="footer-bottom">
-      <span data-i18n="footer.copyright">© 2026 Yosin Store. Все права защищены.</span>
-      <span class="mono" data-i18n="footer.tagline">Душанбе · Таджикистан</span>
-    </div>
+    <form id="expenseForm">
+      <div class="field" style="margin-bottom:12px;">
+        <label>Товар</label>
+        <select name="productId" id="expenseProductSelect" required></select>
+      </div>
+      <div class="field" style="margin-bottom:12px;">
+        <label>Сумма, смн</label>
+        <input type="number" name="amount" required min="0" step="0.01">
+      </div>
+      <div class="field" style="margin-bottom:12px;">
+        <label>Описание</label>
+        <input name="description" placeholder="Закупка, доставка, реклама…">
+      </div>
+      <p id="expenseFormError" class="admin-error" hidden></p>
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button type="button" class="btn btn-ghost btn-block" id="cancelExpenseBtn">Отмена</button>
+        <button type="submit" class="btn btn-gold btn-block">Сохранить</button>
+      </div>
+    </form>
   </div>
-</footer>
+</div>
 
 <script src="data/products.js"></script>
 <script src="assets/script.js"></script>

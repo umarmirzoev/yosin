@@ -59,7 +59,15 @@
     tag: '<path d="M20 12.4 12.6 20a1.7 1.7 0 0 1-2.4 0l-6.2-6.2a1.7 1.7 0 0 1 0-2.4L11.4 4h6.2a2.4 2.4 0 0 1 2.4 2.4v6z"></path><circle cx="15.6" cy="8.4" r="1.3"></circle>',
     home: '<path d="M4 11.5 12 4l8 7.5"></path><path d="M6 10v9.5a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V10"></path><path d="M9.5 20.3v-5.8h5v5.8"></path>',
     grid: '<rect x="3.4" y="3.4" width="7.6" height="7.6" rx="1.8"></rect><rect x="13" y="3.4" width="7.6" height="7.6" rx="1.8"></rect><rect x="3.4" y="13" width="7.6" height="7.6" rx="1.8"></rect><rect x="13" y="13" width="7.6" height="7.6" rx="1.8"></rect>',
-    user: '<circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 20.2c1-3.6 4.2-5.6 7.5-5.6s6.5 2 7.5 5.6"></path>'
+    user: '<circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 20.2c1-3.6 4.2-5.6 7.5-5.6s6.5 2 7.5 5.6"></path>',
+    clipboard: '<rect x="5.5" y="4" width="13" height="17" rx="2"></rect><path d="M9 4V3.2A1.2 1.2 0 0 1 10.2 2h3.6a1.2 1.2 0 0 1 1.2 1.2V4"></path><line x1="8.5" y1="10.5" x2="15.5" y2="10.5"></line><line x1="8.5" y1="14.5" x2="15.5" y2="14.5"></line>',
+    wallet: '<rect x="2.3" y="6" width="19.4" height="13" rx="2.2"></rect><path d="M2.3 10.2h19.4"></path><circle cx="17" cy="14.3" r="1.3"></circle>',
+    bell: '<path d="M6 9.2a6 6 0 0 1 12 0c0 4.2 1.6 5.7 2.2 6.8H3.8C4.4 14.9 6 13.4 6 9.2z"></path><path d="M10 19a2 2 0 0 0 4 0"></path>',
+    logout: '<path d="M9.5 21H5.5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="15 16 20 12 15 8"></polyline><line x1="20" y1="12" x2="9.5" y2="12"></line>',
+    refresh: '<path d="M20 11.5A8 8 0 0 0 6.3 6.3L4 8.6"></path><path d="M4 4v4.6h4.6"></path><path d="M4 12.5a8 8 0 0 0 13.7 4.7L20 15.4"></path><path d="M20 20v-4.6h-4.6"></path>',
+    clock: '<circle cx="12" cy="12" r="9.5"></circle><polyline points="12 7 12 12 15.5 14"></polyline>',
+    xCircle: '<circle cx="12" cy="12" r="9.5"></circle><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line>',
+    chevronDown: '<polyline points="6 9 12 15 18 9"></polyline>'
   };
 
   function icon(name, size, extraClass) {
