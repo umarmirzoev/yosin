@@ -95,7 +95,7 @@
         <a class="cat-card" href="catalog.html?category=watches"><span class="ic" data-icon="watch" data-size="24"></span><span>Смарт-часы</span></a>
         <a class="cat-card" href="catalog.html?category=headphones"><span class="ic" data-icon="headphones" data-size="24"></span><span>Наушники</span></a>
         <a class="cat-card" href="catalog.html?category=chargers"><span class="ic" data-icon="zap" data-size="24"></span><span>Зарядки</span></a>
-        <a class="cat-card" href="catalog.html?category=powerbanks"><span class="ic" data-icon="battery" data-size="24"></span><span>Powerbank</span></a>
+        <a class="cat-card" href="catalog.html?category=powerbank"><span class="ic" data-icon="battery" data-size="24"></span><span>Powerbank</span></a>
         <a class="cat-card" href="catalog.html?category=accessories"><span class="ic" data-icon="box" data-size="24"></span><span>Аксессуары</span></a>
       </div>
     </section>
@@ -161,7 +161,7 @@
         <a href="catalog.html?category=watches" data-i18n="nav.watches">Смарт-часы</a>
         <a href="catalog.html?category=headphones" data-i18n="footer.headphones">Наушники</a>
         <a href="catalog.html?category=chargers" data-i18n="footer.chargers">Зарядные устройства</a>
-        <a href="catalog.html?category=powerbanks" data-i18n="footer.powerbanks">Powerbank</a>
+        <a href="catalog.html?category=powerbank" data-i18n="footer.powerbanks">Powerbank</a>
         <a href="catalog.html?category=accessories" data-i18n="footer.accessories">Аксессуары</a>
       </div>
       <div class="footer-col">
@@ -192,14 +192,16 @@
 <script src="assets/script.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    var all = Yosin.allProducts();
-    var deals = all.filter(function (p) { return p.oldPrice; }).slice(0, 4);
-    if (deals.length < 4) {
-      all.filter(function(p){ return deals.indexOf(p) === -1; }).slice(0, 4 - deals.length).forEach(function(p){ deals.push(p); });
-    }
-    var popular = all.slice().sort(function (a, b) { return b.reviews - a.reviews; }).slice(0, 4);
-    Yosin.renderGrid(document.getElementById("dealsGrid"), deals);
-    Yosin.renderGrid(document.getElementById("popularGrid"), popular);
+    Yosin.onProductsReady(function () {
+      var all = Yosin.allProducts();
+      var deals = all.filter(function (p) { return p.oldPrice; }).slice(0, 4);
+      if (deals.length < 4) {
+        all.filter(function(p){ return deals.indexOf(p) === -1; }).slice(0, 4 - deals.length).forEach(function(p){ deals.push(p); });
+      }
+      var popular = all.slice().sort(function (a, b) { return b.reviews - a.reviews; }).slice(0, 4);
+      Yosin.renderGrid(document.getElementById("dealsGrid"), deals);
+      Yosin.renderGrid(document.getElementById("popularGrid"), popular);
+    });
   });
 </script>
 </body>

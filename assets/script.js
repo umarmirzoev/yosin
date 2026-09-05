@@ -12,7 +12,7 @@
     watches: "Смарт-часы",
     headphones: "Наушники",
     chargers: "Зарядные устройства",
-    powerbanks: "Powerbank",
+    powerbank: "Powerbank",
     accessories: "Аксессуары"
   };
 
@@ -21,7 +21,7 @@
     watches: "watch",
     headphones: "headphones",
     chargers: "zap",
-    powerbanks: "battery",
+    powerbank: "battery",
     accessories: "box"
   };
 
@@ -79,6 +79,69 @@
 
   /* ---------------- Data helpers ---------------- */
   function allProducts() { return window.YOSIN_PRODUCTS || []; }
+
+  /* ---------------- Live catalog from the real backend ----------------
+     data/products.js seeds window.YOSIN_PRODUCTS synchronously so pages
+     render instantly; real products from the admin panel are fetched here
+     and merged in on top, then every page listening via onProductsReady
+     re-renders automatically (usually well under a second later). */
+  var PRODUCTS_API_BASE = "https://91.227.41.15.nip.io/api";
+  var productsReadyCallbacks = [];
+  var apiProductsLoaded = false;
+
+  function onProductsReady(cb) {
+    if (typeof cb !== "function") return;
+    productsReadyCallbacks.push(cb);
+    cb();
+  }
+  function notifyProductsReady() {
+    productsReadyCallbacks.slice().forEach(function (cb) {
+      try { cb(); } catch (e) {}
+    });
+  }
+
+  function mapApiProduct(p, categorySlugById) {
+    return {
+      id: p.slug,
+      apiId: p.id,
+      name: p.name,
+      brand: p.brandName || "",
+      category: categorySlugById[p.categoryId] || "accessories",
+      price: p.price,
+      oldPrice: p.oldPrice || null,
+      rating: 0,
+      reviews: 0,
+      badge: null,
+      colors: [],
+      availableColors: p.availableColors || "",
+      storageOptions: p.storageOptions || "",
+      mainImageUrl: p.mainImageUrl || "",
+      images: Array.isArray(p.images) ? p.images : [],
+      specs: {},
+      description: p.description || ""
+    };
+  }
+
+  function loadApiProducts() {
+    Promise.all([
+      fetch(PRODUCTS_API_BASE + "/products").then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }),
+      fetch(PRODUCTS_API_BASE + "/categories").then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
+    ]).then(function (res) {
+      var apiProducts = Array.isArray(res[0]) ? res[0] : [];
+      var categories = Array.isArray(res[1]) ? res[1] : [];
+      var categorySlugById = {};
+      categories.forEach(function (c) { categorySlugById[c.id] = c.slug; });
+
+      var mapped = apiProducts.map(function (p) { return mapApiProduct(p, categorySlugById); });
+      var demo = (window.YOSIN_PRODUCTS || []).filter(function (d) {
+        return !mapped.some(function (m) { return m.id === d.id; });
+      });
+      window.YOSIN_PRODUCTS = mapped.concat(demo);
+      apiProductsLoaded = true;
+      notifyProductsReady();
+    });
+  }
+  loadApiProducts();
   function productById(id) {
     var list = allProducts();
     for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
@@ -201,8 +264,10 @@
       favHTML = '<button class="fav-toggle' + (on ? " on" : "") + '" data-fav-id="' + product.id + '" aria-label="В избранное" onclick="event.preventDefault();Yosin.handleFavClick(this)">' +
         icon("heart", 15) + '</button>';
     }
-    return '<div class="product-thumb">' + badgeHTML + favHTML +
-      icon(CATEGORY_PLURAL_ICON[product.category] || "box", opts.iconSize || 64) + '</div>';
+    var mediaHTML = product.mainImageUrl
+      ? '<img src="' + product.mainImageUrl + '" alt="' + product.name + '" loading="lazy">'
+      : icon(CATEGORY_PLURAL_ICON[product.category] || "box", opts.iconSize || 64);
+    return '<div class="product-thumb">' + badgeHTML + favHTML + mediaHTML + '</div>';
   }
 
   function cardHTML(product) {
@@ -216,7 +281,7 @@
       '<div class="product-info">' +
       '<span class="brand">' + product.brand + '</span>' +
       '<a href="product.html?id=' + product.id + '"><h3 class="name">' + product.name + '</h3></a>' +
-      '<div class="rating"><span class="stars">' + starString(product.rating) + '</span><span>' + product.rating.toFixed(1) + ' · ' + product.reviews + '</span></div>' +
+      (product.reviews ? '<div class="rating"><span class="stars">' + starString(product.rating) + '</span><span>' + product.rating.toFixed(1) + ' · ' + product.reviews + '</span></div>' : '') +
       '<div class="price-row">' + priceRow + '</div>' +
       '<div class="add-row">' +
       '<button class="btn btn-ghost" style="flex:0 0 auto;padding:9px 12px;" onclick="Yosin.handleQuickFav(this,\'' + product.id + '\')" aria-label="В избранное">' + icon("heart", 15, isFav(product.id) ? "fav-inline on" : "fav-inline") + '</button>' +
@@ -771,6 +836,8 @@
     CATEGORY_ICON: CATEGORY_PLURAL_ICON,
     icon: icon,
     allProducts: allProducts,
+    onProductsReady: onProductsReady,
+    isApiLoaded: function () { return apiProductsLoaded; },
     productById: productById,
     relatedProducts: relatedProducts,
     categoryLabel: categoryLabel,

@@ -120,7 +120,7 @@
         <a href="catalog.html?category=watches" data-i18n="nav.watches">Смарт-часы</a>
         <a href="catalog.html?category=headphones" data-i18n="footer.headphones">Наушники</a>
         <a href="catalog.html?category=chargers" data-i18n="footer.chargers">Зарядные устройства</a>
-        <a href="catalog.html?category=powerbanks" data-i18n="footer.powerbanks">Powerbank</a>
+        <a href="catalog.html?category=powerbank" data-i18n="footer.powerbanks">Powerbank</a>
         <a href="catalog.html?category=accessories" data-i18n="footer.accessories">Аксессуары</a>
       </div>
       <div class="footer-col">
@@ -152,8 +152,6 @@
 <script>
 (function () {
   document.addEventListener("DOMContentLoaded", function () {
-    var all = Yosin.allProducts();
-    var brands = Array.from(new Set(all.map(function (p) { return p.brand; }))).sort();
     var categories = Object.keys(Yosin.CATEGORY_LABELS);
 
     var state = {
@@ -202,11 +200,15 @@
       }).join("");
 
     var brandBox = document.getElementById("brandFilters");
-    brandBox.innerHTML = '<label class="filter-option"><input type="checkbox" data-all-brands checked> Все бренды</label>' +
-      brands.map(function (b) {
-        return '<label class="filter-option"><input type="checkbox" value="' + b + '"> ' + b + '</label>';
-      }).join("");
-    var allBrandsCheckbox = brandBox.querySelector("[data-all-brands]");
+    var allBrandsCheckbox;
+    function renderBrandFilters() {
+      var brands = Array.from(new Set(Yosin.allProducts().map(function (p) { return p.brand; }))).filter(Boolean).sort();
+      brandBox.innerHTML = '<label class="filter-option"><input type="checkbox" data-all-brands checked> Все бренды</label>' +
+        brands.map(function (b) {
+          return '<label class="filter-option"><input type="checkbox" value="' + b + '"> ' + b + '</label>';
+        }).join("");
+      allBrandsCheckbox = brandBox.querySelector("[data-all-brands]");
+    }
 
     var sortSelect = document.getElementById("sortSelect");
     sortSelect.value = state.sort;
@@ -224,7 +226,7 @@
     }
 
     function apply() {
-      var list = all.filter(function (p) {
+      var list = Yosin.allProducts().filter(function (p) {
         if (state.category && p.category !== state.category) return false;
         if (state.brands.length && state.brands.indexOf(p.brand) === -1) return false;
         if (state.priceMin != null && p.price < state.priceMin) return false;
@@ -285,7 +287,11 @@
     });
 
     updateFiltersToggleLabel();
-    apply();
+
+    Yosin.onProductsReady(function () {
+      renderBrandFilters();
+      apply();
+    });
   });
 })();
 </script>

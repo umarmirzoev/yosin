@@ -80,7 +80,7 @@
         <a href="catalog.html?category=watches" data-i18n="nav.watches">Смарт-часы</a>
         <a href="catalog.html?category=headphones" data-i18n="footer.headphones">Наушники</a>
         <a href="catalog.html?category=chargers" data-i18n="footer.chargers">Зарядные устройства</a>
-        <a href="catalog.html?category=powerbanks" data-i18n="footer.powerbanks">Powerbank</a>
+        <a href="catalog.html?category=powerbank" data-i18n="footer.powerbanks">Powerbank</a>
         <a href="catalog.html?category=accessories" data-i18n="footer.accessories">Аксессуары</a>
       </div>
       <div class="footer-col">
@@ -111,9 +111,11 @@
 <script src="assets/script.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    var favs = Yosin.getFavs();
-    var products = favs.map(Yosin.productById).filter(Boolean);
-    Yosin.renderGrid(document.getElementById("favGrid"), products, "Нажмите на сердечко у товара, чтобы сохранить его здесь", "heart", "Пока ничего не сохранено");
+    Yosin.onProductsReady(function () {
+      var favs = Yosin.getFavs();
+      var products = favs.map(Yosin.productById).filter(Boolean);
+      Yosin.renderGrid(document.getElementById("favGrid"), products, "Нажмите на сердечко у товара, чтобы сохранить его здесь", "heart", "Пока ничего не сохранено");
+    });
   });
 </script>
 </body>

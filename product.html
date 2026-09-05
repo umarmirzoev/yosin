@@ -84,7 +84,7 @@
         <a href="catalog.html?category=watches" data-i18n="nav.watches">Смарт-часы</a>
         <a href="catalog.html?category=headphones" data-i18n="footer.headphones">Наушники</a>
         <a href="catalog.html?category=chargers" data-i18n="footer.chargers">Зарядные устройства</a>
-        <a href="catalog.html?category=powerbanks" data-i18n="footer.powerbanks">Powerbank</a>
+        <a href="catalog.html?category=powerbank" data-i18n="footer.powerbanks">Powerbank</a>
         <a href="catalog.html?category=accessories" data-i18n="footer.accessories">Аксессуары</a>
       </div>
       <div class="footer-col">
@@ -117,18 +117,28 @@
 (function () {
   document.addEventListener("DOMContentLoaded", function () {
     var id = Yosin.getParam("id");
-    var product = id ? Yosin.productById(id) : null;
     var root = document.getElementById("pdRoot");
     var crumb = document.getElementById("breadcrumb");
+    var initialized = false;
 
-    if (!product) {
-      crumb.innerHTML = '<a href="index.html">Главная</a><span class="sep">/</span><span>Товар не найден</span>';
-      root.innerHTML = '<div class="empty-state">' + Yosin.icon("search", 56) +
-        '<h3>Такого товара нет в каталоге</h3><p>Возможно, он больше не продаётся.</p>' +
-        '<a href="catalog.html" class="btn btn-gold" style="margin-top:8px;">Перейти в каталог</a></div>';
-      return;
-    }
+    Yosin.onProductsReady(function () {
+      var product = id ? Yosin.productById(id) : null;
 
+      if (!product) {
+        // The real catalog may still be loading — don't flash "not found"
+        // until we've actually heard back from the server at least once.
+        if (!Yosin.isApiLoaded() && !initialized) return;
+        crumb.innerHTML = '<a href="index.html">Главная</a><span class="sep">/</span><span>Товар не найден</span>';
+        root.innerHTML = '<div class="empty-state">' + Yosin.icon("search", 56) +
+          '<h3>Такого товара нет в каталоге</h3><p>Возможно, он больше не продаётся.</p>' +
+          '<a href="catalog.html" class="btn btn-gold" style="margin-top:8px;">Перейти в каталог</a></div>';
+        return;
+      }
+      initialized = true;
+      initProduct(product);
+    });
+
+    function initProduct(product) {
     document.getElementById("pageTitle").textContent = product.name + " — Yosin Store";
     crumb.innerHTML = '<a href="index.html">Главная</a><span class="sep">/</span>' +
       '<a href="catalog.html?category=' + product.category + '">' + Yosin.categoryLabel(product.category) + '</a>' +
@@ -138,6 +148,13 @@
     var selectedColor = 0;
     var favOn = Yosin.isFav(product.id);
 
+    function galleryList() {
+      var list = [];
+      if (product.mainImageUrl) list.push(product.mainImageUrl);
+      (product.images || []).forEach(function (u) { if (u && list.indexOf(u) === -1) list.push(u); });
+      return list;
+    }
+    var selectedImageIdx = 0;
     function specsRows() {
       return Object.keys(product.specs).map(function (k) {
         return '<div class="r"><span class="k">' + k + '</span><span class="v">' + product.specs[k] + '</span></div>';
@@ -148,7 +165,32 @@
         return '<span class="c' + (i === selectedColor ? " sel" : "") + '" style="background:' + c + ';" data-color-idx="' + i + '"></span>';
       }).join("");
     }
+    function attrChipsHTML() {
+      var out = "";
+      if (product.availableColors) {
+        out += '<div class="pd-attr-row"><span class="pd-option-label">Доступные цвета</span><div class="chip-row">' +
+          product.availableColors.split(",").map(function (c) { return c.trim(); }).filter(Boolean)
+            .map(function (c) { return '<span class="chip">' + c + '</span>'; }).join("") + '</div></div>';
+      }
+      if (product.storageOptions) {
+        out += '<div class="pd-attr-row"><span class="pd-option-label">Память</span><div class="chip-row">' +
+          product.storageOptions.split(",").map(function (s) { return s.trim(); }).filter(Boolean)
+            .map(function (s) { return '<span class="chip">' + s + '</span>'; }).join("") + '</div></div>';
+      }
+      return out;
+    }
+    function mainImageHTML() {
+      var gallery = galleryList();
+      if (gallery.length) return '<img src="' + gallery[selectedImageIdx] + '" alt="' + product.name + '">';
+      return Yosin.icon(Yosin.CATEGORY_ICON[product.category], 180);
+    }
     function thumbsHTML() {
+      var gallery = galleryList();
+      if (gallery.length) {
+        return gallery.map(function (url, i) {
+          return '<div class="t' + (i === selectedImageIdx ? " active" : "") + '" data-photo-idx="' + i + '"><img src="' + url + '" alt=""></div>';
+        }).join("");
+      }
       var n = Math.max(3, product.colors.length);
       var out = "";
       for (var i = 0; i < n; i++) {
@@ -161,18 +203,18 @@
       root.innerHTML =
         '<div class="pd-layout">' +
         '<div class="pd-gallery">' +
-        '<div class="pd-main-img">' + Yosin.icon(Yosin.CATEGORY_ICON[product.category], 180) + '</div>' +
+        '<div class="pd-main-img">' + mainImageHTML() + '</div>' +
         '<div class="pd-thumbs">' + thumbsHTML() + '</div>' +
         '</div>' +
         '<div class="pd-info">' +
         '<span class="pd-brand">' + product.brand + '</span>' +
         '<h1 class="pd-title">' + product.name + '</h1>' +
-        '<div class="pd-rating"><span class="stars">' + Yosin.starString(product.rating) + '</span><span>' + product.rating.toFixed(1) + ' · ' + product.reviews + ' отзывов</span></div>' +
+        (product.reviews ? '<div class="pd-rating"><span class="stars">' + Yosin.starString(product.rating) + '</span><span>' + product.rating.toFixed(1) + ' · ' + product.reviews + ' отзывов</span></div>' : '') +
         '<div class="pd-price-row"><span class="price">' + Yosin.formatPrice(product.price) + '</span>' +
         (product.oldPrice ? '<span class="old-price">' + Yosin.formatPrice(product.oldPrice) + '</span>' : '') + '</div>' +
         '<p class="pd-desc">' + product.description + '</p>' +
-        '<span class="pd-option-label">Цвет</span>' +
-        '<div class="color-swatches" id="colorSwatches">' + colorSwatches() + '</div>' +
+        attrChipsHTML() +
+        (product.colors.length ? '<span class="pd-option-label">Цвет</span><div class="color-swatches" id="colorSwatches">' + colorSwatches() + '</div>' : '') +
         '<span class="pd-option-label">Количество</span>' +
         '<div class="qty-row"><div class="stepper">' +
         '<button id="qtyMinus" aria-label="Меньше">−</button><span class="qty" id="qtyVal">' + qty + '</span><button id="qtyPlus" aria-label="Больше">+</button>' +
@@ -201,11 +243,20 @@
         Yosin.showToast(favOn ? "Добавлено в избранное" : "Убрано из избранного", "heart");
         render();
       });
-      document.getElementById("colorSwatches").addEventListener("click", function (e) {
-        var el = e.target.closest("[data-color-idx]");
-        if (!el) return;
-        selectedColor = Number(el.getAttribute("data-color-idx"));
-        render();
+      var colorSwatchesEl = document.getElementById("colorSwatches");
+      if (colorSwatchesEl) {
+        colorSwatchesEl.addEventListener("click", function (e) {
+          var el = e.target.closest("[data-color-idx]");
+          if (!el) return;
+          selectedColor = Number(el.getAttribute("data-color-idx"));
+          render();
+        });
+      }
+      document.querySelectorAll("[data-photo-idx]").forEach(function (t) {
+        t.addEventListener("click", function () {
+          selectedImageIdx = Number(t.getAttribute("data-photo-idx"));
+          render();
+        });
       });
       document.querySelectorAll("[data-thumb-idx]").forEach(function (t) {
         t.addEventListener("click", function () {
@@ -217,10 +268,14 @@
     render();
 
     var related = Yosin.relatedProducts(product, 4);
+    var relatedSection = document.getElementById("relatedSection");
     if (related.length) {
-      document.getElementById("relatedSection").style.display = "";
+      relatedSection.style.display = "";
       Yosin.renderGrid(document.getElementById("relatedGrid"), related);
+    } else {
+      relatedSection.style.display = "none";
     }
+    } // end initProduct
   });
 })();
 </script>

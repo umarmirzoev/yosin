@@ -91,7 +91,7 @@ window.YOSIN_PRODUCTS = [
     "id": "anker-powercore-20000",
     "name": "Anker PowerCore 20000",
     "brand": "Anker",
-    "category": "powerbanks",
+    "category": "powerbank",
     "price": 460,
     "oldPrice": null,
     "rating": 4.7,
