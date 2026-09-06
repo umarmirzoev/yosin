@@ -224,6 +224,7 @@
         '</div><span class="mono" style="font-size:12px;color:var(--ink-faint);">в наличии в шоуруме</span></div>' +
         '<div class="pd-actions">' +
         '<button class="btn btn-gold" id="addBtn">Добавить в корзину — ' + Yosin.formatPrice(product.price * qty) + '</button>' +
+        '<button class="btn btn-primary" id="buyNowBtn">Купить сейчас</button>' +
         '<button class="btn btn-ghost" id="favBtn" aria-label="В избранное">' + Yosin.icon("heart", 18, favOn ? "fav-inline on" : "fav-inline") + '</button>' +
         '</div>' +
         '<h4 style="font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);font-family:\'IBM Plex Mono\',monospace;font-weight:500;margin-bottom:10px;">Характеристики</h4>' +
@@ -240,6 +241,10 @@
       document.getElementById("addBtn").addEventListener("click", function () {
         Yosin.addToCart(product.id, qty);
         Yosin.showToast(product.name + " добавлен в корзину", "cart");
+      });
+      document.getElementById("buyNowBtn").addEventListener("click", function () {
+        Yosin.addToCart(product.id, qty);
+        window.location.href = "checkout.html";
       });
       document.getElementById("favBtn").addEventListener("click", function () {
         favOn = Yosin.toggleFav(product.id);

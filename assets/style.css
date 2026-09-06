@@ -364,8 +364,8 @@ em.accent{font-style:italic;color:var(--gold-deep);}
 .stepper button:hover{border-color:var(--gold);color:var(--ink);}
 .stepper .qty{font-family:'IBM Plex Mono','SFMono-Regular',Consolas,'Liberation Mono',monospace;font-weight:600;min-width:16px;text-align:center;}
 
-.pd-actions{display:flex;gap:12px;margin-bottom:28px;}
-.pd-actions .btn-gold{flex:1;}
+.pd-actions{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;}
+.pd-actions .btn-gold,.pd-actions .btn-primary{flex:1 1 160px;}
 
 .specs-table{border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;margin-bottom:20px;}
 .specs-table .r{display:flex;justify-content:space-between;padding:12px 16px;font-size:13px;border-bottom:1px solid var(--line);}
