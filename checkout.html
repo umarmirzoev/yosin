@@ -108,9 +108,6 @@
 <script src="assets/script.js"></script>
 <script>
 (function () {
-  var delivery = "courier";
-  var payment = "card";
-
   function renderForm() {
     if (!Yosin.getToken() || !Yosin.getUser()) {
       Yosin.renderAuthGate();
@@ -139,20 +136,6 @@
       '<div class="field" id="f-name"><label>Имя и фамилия</label><input type="text" name="name" placeholder="Умар Мирзоев"><span class="err">Укажите имя</span></div>' +
       '<div class="field" id="f-phone"><label>Телефон</label><input type="tel" name="phone" placeholder="+992 92 xxx-xx-xx"><span class="err">Укажите телефон</span></div>' +
       '</div></div>' +
-
-      '<div class="form-section">' +
-      '<h3>Доставка</h3>' +
-      '<div class="radio-card' + (delivery === "courier" ? " active" : "") + '" data-delivery="courier"><div class="radio-dot"></div><div><div class="t">Курьером — сегодня к 19:00</div><div class="s">По Душанбе, бесплатно от ' + Yosin.formatPrice(Yosin.FREE_SHIPPING_THRESHOLD) + '</div></div></div>' +
-      '<div class="radio-card' + (delivery === "pickup" ? " active" : "") + '" data-delivery="pickup"><div class="radio-dot"></div><div><div class="t">Самовывоз — шоурум на Рудаки, 45</div><div class="s">Готов через 40 минут, без доставки</div></div></div>' +
-      '<div class="field full" id="f-address" style="margin-top:14px;' + (delivery === "pickup" ? "display:none;" : "") + '"><label>Адрес доставки</label><input type="text" name="address" placeholder="Улица, дом, квартира"><span class="err">Укажите адрес</span></div>' +
-      '</div>' +
-
-      '<div class="form-section">' +
-      '<h3>Оплата</h3>' +
-      '<div class="radio-card' + (payment === "card" ? " active" : "") + '" data-payment="card"><div class="radio-dot"></div><div><div class="t">Картой онлайн</div><div class="s">Visa, Mastercard, Корти Милли</div></div></div>' +
-      '<div class="radio-card' + (payment === "cash" ? " active" : "") + '" data-payment="cash"><div class="radio-dot"></div><div><div class="t">Наличными при получении</div><div class="s">Курьеру или в шоуруме</div></div></div>' +
-      '<div class="radio-card' + (payment === "installment" ? " active" : "") + '" data-payment="installment"><div class="radio-dot"></div><div><div class="t">Рассрочка 0-0-12</div><div class="s">≈ ' + Yosin.formatPrice(Math.round(totals.total / 12)) + '/мес, без переплат</div></div></div>' +
-      '</div>' +
       '</div>' +
 
       '<div class="summary-card">' +
@@ -169,18 +152,10 @@
       '</div>' +
       '</form>';
 
-    root.querySelectorAll("[data-delivery]").forEach(function (el) {
-      el.addEventListener("click", function () { delivery = el.getAttribute("data-delivery"); renderForm(); });
-    });
-    root.querySelectorAll("[data-payment]").forEach(function (el) {
-      el.addEventListener("click", function () { payment = el.getAttribute("data-payment"); renderForm(); });
-    });
-
     document.getElementById("checkoutForm").addEventListener("submit", function (e) {
       e.preventDefault();
       var name = e.target.name.value.trim();
       var phone = e.target.phone.value.trim();
-      var address = e.target.address ? e.target.address.value.trim() : "";
       var valid = true;
 
       function toggleErr(id, bad) {
@@ -188,8 +163,6 @@
       }
       toggleErr("f-name", !name); if (!name) valid = false;
       toggleErr("f-phone", phone.length < 6); if (phone.length < 6) valid = false;
-      if (delivery === "courier") { toggleErr("f-address", !address); if (!address) valid = false; }
-      else toggleErr("f-address", false);
 
       if (!valid) return;
 
@@ -209,12 +182,9 @@
         submitBtn.insertAdjacentElement("afterend", box);
       }
 
-      var etaLabel = delivery === "courier" ? "сегодня, до 19:00" : "самовывоз через 40 минут";
+      var etaLabel = "уточним по телефону";
       var currentLines = Yosin.cartLines();
       var totalNow = Yosin.calcTotals(currentLines).total;
-
-      var paymentLabel = { card: "Картой онлайн", cash: "Наличными при получении", installment: "Рассрочка 0-0-12" }[payment] || payment;
-      var deliveryLabel = delivery === "courier" ? ("Курьером — " + address) : "Самовывоз (Душанбе, Рудаки 45)";
 
       function finishOrder(orderNumber) {
         var waLines = [
@@ -222,8 +192,7 @@
           "",
           "Имя: " + name,
           "Телефон: " + phone,
-          "Доставка: " + deliveryLabel,
-          "Оплата: " + paymentLabel,
+          "Адрес и способ оплаты — уточним по телефону",
           "",
           "Товары:"
         ];
@@ -250,7 +219,7 @@
           '<div class="success-view">' +
           '<div class="success-badge">' + Yosin.icon("checkCircle", 40) + '</div>' +
           '<h1>Заказ принят, ' + name.split(" ")[0] + '!</h1>' +
-          '<p>Мы отправим SMS на ' + phone + ', как только заказ будет готов к ' + (delivery === "courier" ? "выезду курьера" : "выдаче") + '.</p>' +
+          '<p>Мы позвоним на ' + phone + ' в течение часа, чтобы уточнить адрес и способ оплаты.</p>' +
           '<div class="order-number">' + orderNumber + '</div>' +
           '<div class="specs-table" style="width:100%;text-align:left;margin-top:6px;">' +
           '<div class="r"><span class="k">Доставка</span><span class="v">' + etaLabel + '</span></div>' +
@@ -294,9 +263,9 @@
             method: "POST",
             headers: authHeaders,
             body: JSON.stringify({
-              deliveryType: delivery === "courier" ? 0 : 1,
-              paymentType: payment === "card" ? 0 : (payment === "cash" ? 1 : 2),
-              address: delivery === "courier" ? address : null,
+              deliveryType: 0,
+              paymentType: 1,
+              address: null,
               contactPhone: phone,
               promoCode: promo ? promo.code : null
             })
