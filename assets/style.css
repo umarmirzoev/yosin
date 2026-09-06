@@ -310,6 +310,10 @@ em.accent{font-style:italic;color:var(--gold-deep);}
 }
 .chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
 .chip:hover:not(.active){border-color:var(--gold);}
+.chip-picker{margin-top:2px;}
+.chip-toggle{cursor:pointer;font-family:inherit;}
+.chip-toggle.add-custom{border-style:dashed;color:var(--ink-faint);}
+.chip-toggle.add-custom:hover{color:var(--gold-deep);border-color:var(--gold);}
 
 .empty-state{
   text-align:center;padding:60px 20px;color:var(--ink-faint);

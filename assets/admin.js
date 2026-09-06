@@ -9,6 +9,8 @@
   var STATUS_CLASS = { New: "st-new", Processing: "st-processing", Shipped: "st-shipped", Delivered: "st-delivered", Cancelled: "st-cancelled" };
   var STATUS_NUMERIC = { New: 0, Processing: 1, Shipped: 2, Delivered: 3, Cancelled: 4 };
   var STATUS_ORDER = ["New", "Processing", "Shipped", "Delivered", "Cancelled"];
+  var COLOR_OPTIONS = ["Чёрный", "Белый", "Серый", "Серебристый", "Золотой", "Синий", "Красный", "Зелёный", "Жёлтый", "Розовый", "Фиолетовый"];
+  var STORAGE_OPTIONS = ["64GB", "128GB", "256GB", "512GB", "1TB"];
 
   var els = {};
   var state = {
@@ -24,6 +26,8 @@
     searchTerm: "",
     editingId: null,
     galleryImages: [],
+    selectedColors: [],
+    selectedStorage: [],
   };
 
   /* ---------------- Session ---------------- */
@@ -428,21 +432,75 @@
         setFieldValue("costPrice", 0);
         setFieldValue("stock", p.stock);
         setFieldValue("mainImageUrl", p.mainImageUrl);
-        setFieldValue("availableColors", p.availableColors);
-        setFieldValue("storageOptions", p.storageOptions);
         setFieldValue("categoryId", p.categoryId);
         setFieldValue("brandId", p.brandId);
         renderMainImagePreview(p.mainImageUrl);
         state.galleryImages = Array.isArray(p.images) ? p.images.slice() : [];
+        state.selectedColors = parseCsvList(p.availableColors);
+        state.selectedStorage = parseCsvList(p.storageOptions);
       }
     } else {
       if (els.modalTitle) els.modalTitle.textContent = "Добавить товар";
       setFieldValue("id", "");
       renderMainImagePreview(null);
       state.galleryImages = [];
+      state.selectedColors = [];
+      state.selectedStorage = [];
     }
     renderGalleryGrid();
+    renderColorChips();
+    renderStorageChips();
     if (els.productModal) els.productModal.hidden = false;
+  }
+
+  function parseCsvList(str) {
+    return String(str || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+  }
+
+  function chipPickerList(options, selected) {
+    var list = options.slice();
+    selected.forEach(function (v) { if (list.indexOf(v) === -1) list.push(v); });
+    return list;
+  }
+
+  function renderColorChips() {
+    if (!els.colorChipPicker) return;
+    var list = chipPickerList(COLOR_OPTIONS, state.selectedColors);
+    els.colorChipPicker.innerHTML = list.map(function (c) {
+      var active = state.selectedColors.indexOf(c) !== -1;
+      return '<button type="button" class="chip chip-toggle' + (active ? ' active' : '') + '" data-color-chip="' + escapeAttr(c) + '">' + c + '</button>';
+    }).join('') + '<button type="button" class="chip chip-toggle add-custom" data-add-color-chip>+ Свой</button>';
+    if (els.productForm && els.productForm.elements.availableColors) {
+      els.productForm.elements.availableColors.value = state.selectedColors.join(", ");
+    }
+  }
+
+  function renderStorageChips() {
+    if (!els.storageChipPicker) return;
+    var list = chipPickerList(STORAGE_OPTIONS, state.selectedStorage);
+    els.storageChipPicker.innerHTML = list.map(function (s) {
+      var active = state.selectedStorage.indexOf(s) !== -1;
+      return '<button type="button" class="chip chip-toggle' + (active ? ' active' : '') + '" data-storage-chip="' + escapeAttr(s) + '">' + s + '</button>';
+    }).join('') + '<button type="button" class="chip chip-toggle add-custom" data-add-storage-chip>+ Свой</button>';
+    if (els.productForm && els.productForm.elements.storageOptions) {
+      els.productForm.elements.storageOptions.value = state.selectedStorage.join(", ");
+    }
+  }
+
+  function escapeAttr(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+  }
+
+  function toggleColorChip(value) {
+    var idx = state.selectedColors.indexOf(value);
+    if (idx === -1) state.selectedColors.push(value); else state.selectedColors.splice(idx, 1);
+    renderColorChips();
+  }
+
+  function toggleStorageChip(value) {
+    var idx = state.selectedStorage.indexOf(value);
+    if (idx === -1) state.selectedStorage.push(value); else state.selectedStorage.splice(idx, 1);
+    renderStorageChips();
   }
 
   function setFieldValue(name, value) {
@@ -808,6 +866,8 @@
     els.galleryGrid = document.getElementById("galleryGrid");
     els.galleryInput = document.getElementById("galleryInput");
     els.galleryStatus = document.getElementById("galleryStatus");
+    els.colorChipPicker = document.getElementById("colorChipPicker");
+    els.storageChipPicker = document.getElementById("storageChipPicker");
 
     els.addExpenseBtn = document.getElementById("addExpenseBtn");
     els.expenseModal = document.getElementById("expenseModal");
@@ -892,6 +952,34 @@
     }
     if (els.mainImageInput) els.mainImageInput.addEventListener("change", handleMainImageInput);
     if (els.galleryInput) els.galleryInput.addEventListener("change", handleGalleryInput);
+    if (els.colorChipPicker) {
+      els.colorChipPicker.addEventListener("click", function (e) {
+        if (e.target.closest("[data-add-color-chip]")) {
+          var val = window.prompt("Введите свой вариант цвета:");
+          if (val && val.trim() && state.selectedColors.indexOf(val.trim()) === -1) {
+            state.selectedColors.push(val.trim());
+            renderColorChips();
+          }
+          return;
+        }
+        var chip = e.target.closest("[data-color-chip]");
+        if (chip) toggleColorChip(chip.getAttribute("data-color-chip"));
+      });
+    }
+    if (els.storageChipPicker) {
+      els.storageChipPicker.addEventListener("click", function (e) {
+        if (e.target.closest("[data-add-storage-chip]")) {
+          var val = window.prompt("Введите свой вариант памяти:");
+          if (val && val.trim() && state.selectedStorage.indexOf(val.trim()) === -1) {
+            state.selectedStorage.push(val.trim());
+            renderStorageChips();
+          }
+          return;
+        }
+        var chip = e.target.closest("[data-storage-chip]");
+        if (chip) toggleStorageChip(chip.getAttribute("data-storage-chip"));
+      });
+    }
     if (els.addBrandBtn) els.addBrandBtn.addEventListener("click", addBrandQuick);
     if (els.galleryGrid) {
       els.galleryGrid.addEventListener("click", function (e) {

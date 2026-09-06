@@ -237,8 +237,16 @@
         <p id="galleryStatus" class="admin-photo-status" hidden></p>
       </div>
       <div class="form-grid" style="margin-bottom:12px;">
-        <div class="field"><label>Доступные цвета</label><input name="availableColors" placeholder="Чёрный, Белый, Золотой"></div>
-        <div class="field"><label>Память / объём</label><input name="storageOptions" placeholder="128GB, 256GB, 512GB"></div>
+        <div class="field">
+          <label>Доступные цвета</label>
+          <input type="hidden" name="availableColors">
+          <div class="chip-row chip-picker" id="colorChipPicker"></div>
+        </div>
+        <div class="field">
+          <label>Память / объём</label>
+          <input type="hidden" name="storageOptions">
+          <div class="chip-row chip-picker" id="storageChipPicker"></div>
+        </div>
       </div>
       <div class="form-grid" style="margin-bottom:6px;">
         <div class="field"><label>Категория</label><select name="categoryId" id="categorySelect" required></select></div>
