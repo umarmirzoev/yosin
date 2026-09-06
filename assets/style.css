@@ -1081,6 +1081,16 @@ body.gate-locked{overflow:hidden;}
 .admin-card-head a,.admin-card-head .link-btn{font-size:12px;color:var(--gold-deep);font-weight:700;text-decoration:none;background:none;border:none;cursor:pointer;font-family:inherit;}
 .admin-grid-2{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
 
+.chart-summary{font-size:12.5px;color:var(--ink-soft);}
+.chart-bars{display:flex;align-items:flex-end;gap:4px;height:170px;padding:10px 2px 0;overflow-x:auto;}
+.chart-bar-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1 0 16px;min-width:16px;height:100%;cursor:default;}
+.chart-bar-col .bar{width:100%;max-width:20px;border-radius:4px 4px 0 0;background:var(--gold-pale);transition:background .15s;min-height:3px;}
+.chart-bar-col.has-orders .bar{background:var(--gold);}
+.chart-bar-col.today .bar{background:var(--gold-deep);}
+.chart-bar-col .bar-label{font-size:9.5px;color:var(--ink-faint);margin-top:5px;white-space:nowrap;}
+.chart-bar-col.today .bar-label{color:var(--gold-deep);font-weight:700;}
+.chart-empty-note{font-size:13px;color:var(--ink-faint);padding:20px 0;text-align:center;}
+
 .admin-filter-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
 .admin-filter-tab{
   border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 16px;font:inherit;

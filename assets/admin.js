@@ -162,7 +162,7 @@
       renderProductsTable();
     }
     if (view === "customers") renderCustomersTable();
-    if (view === "finance") { renderFinanceCards(); renderExpensesTable(); }
+    if (view === "finance") { renderFinanceCards(); renderOrdersChart(); renderExpensesTable(); }
 
     closeMobileSidebar();
   }
@@ -230,6 +230,7 @@
         renderProductsTable();
         renderCustomersTable();
         renderFinanceCards();
+        renderOrdersChart();
         renderExpensesTable();
       })
       .catch(function (err) {
@@ -586,6 +587,71 @@
   }
 
   /* ---------------- Finance ---------------- */
+  var MONTH_NAMES_RU = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
+
+  function renderOrdersChart() {
+    if (!els.ordersChartBars) return;
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth();
+    var today = now.getDate();
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    var counts = new Array(daysInMonth + 1).fill(0);
+    var revenue = new Array(daysInMonth + 1).fill(0);
+    var monthOrders = 0;
+    var monthRevenue = 0;
+
+    (state.orders || []).forEach(function (o) {
+      if (!o.createdAt) return;
+      var d = new Date(o.createdAt);
+      if (isNaN(d.getTime()) || d.getFullYear() !== year || d.getMonth() !== month) return;
+      var day = d.getDate();
+      counts[day] += 1;
+      revenue[day] += Number(o.totalAmount || 0);
+      monthOrders += 1;
+      monthRevenue += Number(o.totalAmount || 0);
+    });
+
+    if (els.ordersChartTitle) {
+      els.ordersChartTitle.textContent = "Заказы за " + (MONTH_NAMES_RU[month] || "") + " " + year;
+    }
+    if (els.ordersChartSummary) {
+      els.ordersChartSummary.textContent = monthOrders + " " + orderWord(monthOrders) + " · " + formatMoney(monthRevenue);
+    }
+
+    if (monthOrders === 0) {
+      els.ordersChartBars.innerHTML = '<p class="chart-empty-note">В этом месяце заказов пока не было.</p>';
+      return;
+    }
+
+    var maxCount = 1;
+    for (var i = 1; i <= daysInMonth; i++) { if (counts[i] > maxCount) maxCount = counts[i]; }
+
+    var html = "";
+    for (var day = 1; day <= daysInMonth; day++) {
+      var c = counts[day];
+      var r = revenue[day];
+      var heightPct = c > 0 ? Math.max(6, Math.round((c / maxCount) * 100)) : 3;
+      var colCls = "chart-bar-col" + (c > 0 ? " has-orders" : "") + (day === today ? " today" : "");
+      var title = day + " число: " + c + " " + orderWord(c) + (c > 0 ? ", " + formatMoney(r) : "");
+      html += '<div class="' + colCls + '" title="' + title + '">' +
+        '<div class="bar" style="height:' + heightPct + '%;"></div>' +
+        '<div class="bar-label">' + day + '</div>' +
+        '</div>';
+    }
+    els.ordersChartBars.innerHTML = html;
+  }
+
+  function orderWord(n) {
+    n = Math.abs(n) % 100;
+    var n1 = n % 10;
+    if (n > 10 && n < 20) return "заказов";
+    if (n1 > 1 && n1 < 5) return "заказа";
+    if (n1 === 1) return "заказ";
+    return "заказов";
+  }
+
   function renderFinanceCards() {
     if (!els.financeCards) return;
     var s = state.stats;
@@ -720,6 +786,9 @@
     els.ordersTable = document.getElementById("ordersTable");
     els.customersTable = document.getElementById("customersTable");
     els.financeCards = document.getElementById("financeCards");
+    els.ordersChartTitle = document.getElementById("ordersChartTitle");
+    els.ordersChartSummary = document.getElementById("ordersChartSummary");
+    els.ordersChartBars = document.getElementById("ordersChartBars");
     els.expensesTable = document.getElementById("expensesTable");
 
     els.addProductBtn = document.getElementById("addProductBtn");
