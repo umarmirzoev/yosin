@@ -928,4 +928,16 @@
       showLoginView();
     }
   });
+
+  // Hook for the mobile bottom nav (assets/script.js) — lets its "+"
+  // button (shown only on admin.html) open the same add-product modal
+  // as the desktop "Добавить товар" button, without script.js needing
+  // to know anything about the admin panel's internals.
+  window.YosinAdmin = {
+    openAddProduct: function () {
+      if (!els.adminApp || els.adminApp.hidden) return;
+      switchView("products");
+      openProductModal(null);
+    }
+  };
 })();

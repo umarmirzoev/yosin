@@ -67,7 +67,8 @@
     refresh: '<path d="M20 11.5A8 8 0 0 0 6.3 6.3L4 8.6"></path><path d="M4 4v4.6h4.6"></path><path d="M4 12.5a8 8 0 0 0 13.7 4.7L20 15.4"></path><path d="M20 20v-4.6h-4.6"></path>',
     clock: '<circle cx="12" cy="12" r="9.5"></circle><polyline points="12 7 12 12 15.5 14"></polyline>',
     xCircle: '<circle cx="12" cy="12" r="9.5"></circle><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line>',
-    chevronDown: '<polyline points="6 9 12 15 18 9"></polyline>'
+    chevronDown: '<polyline points="6 9 12 15 18 9"></polyline>',
+    plus: '<line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>'
   };
 
   function icon(name, size, extraClass) {
@@ -728,9 +729,13 @@
       '<a href="favorites.html" class="' + cls("favorites") + '">' +
         '<span class="bn-icon-wrap">' + icon("heart", 21) + '<span class="count" data-fav-count style="display:none;">0</span></span><span class="bn-label" data-i18n="nav.favorites">Избранное</span>' +
       '</a>' +
-      '<button type="button" class="bn-item bn-search" data-bn-search>' +
-        '<span class="bn-icon-wrap">' + icon("search", 21) + '</span><span class="bn-label" data-i18n="bn.search">Поиск</span>' +
-      '</button>' +
+      (page === "admin"
+        ? '<button type="button" class="bn-item bn-search" data-bn-add-product>' +
+          '<span class="bn-icon-wrap">' + icon("plus", 21) + '</span><span class="bn-label">Добавить</span>' +
+          '</button>'
+        : '<button type="button" class="bn-item bn-search" data-bn-search>' +
+          '<span class="bn-icon-wrap">' + icon("search", 21) + '</span><span class="bn-label" data-i18n="bn.search">Поиск</span>' +
+          '</button>') +
       '<a href="catalog.html" class="' + cls("catalog") + '">' +
         '<span class="bn-icon-wrap">' + icon("grid", 21) + '</span><span class="bn-label" data-i18n="nav.catalog">Каталог</span>' +
       '</a>' +
@@ -741,15 +746,26 @@
     document.body.appendChild(nav);
     document.body.classList.add("has-bottom-nav");
 
-    nav.querySelector("[data-bn-search]").addEventListener("click", function () {
-      var input = document.querySelector(".mobile-search input");
-      if (input) {
-        input.scrollIntoView({ behavior: "smooth", block: "center" });
-        input.focus({ preventScroll: true });
-      } else {
-        window.location.href = "catalog.html";
-      }
-    });
+    var addProductBtn = nav.querySelector("[data-bn-add-product]");
+    if (addProductBtn) {
+      addProductBtn.addEventListener("click", function () {
+        if (window.YosinAdmin && typeof window.YosinAdmin.openAddProduct === "function") {
+          window.YosinAdmin.openAddProduct();
+        }
+      });
+    }
+    var searchBtn = nav.querySelector("[data-bn-search]");
+    if (searchBtn) {
+      searchBtn.addEventListener("click", function () {
+        var input = document.querySelector(".mobile-search input");
+        if (input) {
+          input.scrollIntoView({ behavior: "smooth", block: "center" });
+          input.focus({ preventScroll: true });
+        } else {
+          window.location.href = "catalog.html";
+        }
+      });
+    }
   }
 
   /* Side drawer (mobile hamburger menu) - logo/close header, nav links,
